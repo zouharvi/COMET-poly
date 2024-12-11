@@ -15,7 +15,7 @@ pairwise_ranking_metric:
     layer_norm: False
     loss: mse
     dropout: 0.1
-    batch_size: 16
+    batch_size: 8
     train_data: 
       - data/csv/train_pairwise.csv
     validation_data: 
@@ -26,5 +26,5 @@ pairwise_ranking_metric:
     activations: Tanh
     
 trainer: ../trainer.yaml
-early_stopping: ../early_stopping.yaml
-model_checkpoint: ../model_checkpoint.yaml
+early_stopping: early_stopping_pairwise.yaml
+model_checkpoint: model_checkpoint_pairwise.yaml
