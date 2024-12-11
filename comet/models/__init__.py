@@ -25,6 +25,7 @@ from .base import CometModel
 from .multitask.unified_metric import UnifiedMetric
 from .multitask.xcomet_metric import XCOMETMetric
 from .ranking.ranking_metric import RankingMetric
+from .ranking.pairwise_ranking_metric import PairwiseRankingMetric
 from .regression.referenceless import ReferencelessRegression
 from .regression.regression_metric import RegressionMetric
 from .download_utils import download_model_legacy
@@ -33,6 +34,7 @@ from .download_utils import download_model_legacy
 str2model = {
     "referenceless_regression_metric": ReferencelessRegression,
     "regression_metric": RegressionMetric,
+    "pairwise_ranking_metric": PairwiseRankingMetric,
     "ranking_metric": RankingMetric,
     "unified_metric": UnifiedMetric,
     "xcomet_metric": XCOMETMetric,

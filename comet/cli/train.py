@@ -39,8 +39,10 @@ from pytorch_lightning.callbacks import (EarlyStopping, LearningRateMonitor,
                                          ModelCheckpoint)
 from pytorch_lightning.trainer.trainer import Trainer
 
-from comet.models import (RankingMetric, ReferencelessRegression,
-                          RegressionMetric, UnifiedMetric)
+from comet.models import (
+    PairwiseRankingMetric, RankingMetric, ReferencelessRegression,
+    RegressionMetric, UnifiedMetric
+)
 
 torch.set_float32_matmul_precision('high')
 
@@ -60,6 +62,7 @@ def read_arguments() -> ArgumentParser:
     parser.add_subclass_arguments(
         ReferencelessRegression, "referenceless_regression_metric"
     )
+    parser.add_subclass_arguments(PairwiseRankingMetric, "pairwise_ranking_metric")
     parser.add_subclass_arguments(RankingMetric, "ranking_metric")
     parser.add_subclass_arguments(UnifiedMetric, "unified_metric")
     parser.add_subclass_arguments(EarlyStopping, "early_stopping")
@@ -149,6 +152,21 @@ def initialize_model(configs):
             )
         else:
             model = RankingMetric(**namespace_to_dict(configs.ranking_metric.init_args))
+    elif configs.pairwise_ranking_metric is not None:
+        print(
+            json.dumps(
+                configs.pairwise_ranking_metric.init_args, indent=4, default=lambda x: x.__dict__
+            )
+        )
+        if configs.load_from_checkpoint is not None:
+            logger.info(f"Loading weights from {configs.load_from_checkpoint}.")
+            model = PairwiseRankingMetric.load_from_checkpoint(
+                checkpoint_path=configs.load_from_checkpoint,
+                strict=configs.strict_load,
+                **namespace_to_dict(configs.pairwise_ranking_metric.init_args),
+            )
+        else:
+            model = PairwiseRankingMetric(**namespace_to_dict(configs.pairwise_ranking_metric.init_args))
     elif configs.unified_metric is not None:
         print(
             json.dumps(

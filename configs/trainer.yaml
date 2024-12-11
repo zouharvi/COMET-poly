@@ -1,7 +1,7 @@
 class_path: pytorch_lightning.trainer.trainer.Trainer
 init_args:
   accelerator: gpu
-  devices: 2
+  devices: 1
   strategy: ddp # Uncomment this line for distributed training
   #precision: 16
   accumulate_grad_batches: 8

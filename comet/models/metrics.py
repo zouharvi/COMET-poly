@@ -179,3 +179,31 @@ class WMTKendall(Metric):
             + "_kendall": (self.concordance - self.discordance)
             / (self.concordance + self.discordance)
         }
+
+class PairwiseAccuracy(Metric):
+    full_state_update = True
+
+    def __init__(
+        self,
+        prefix: str = "",
+        dist_sync_on_step: bool = False,
+        process_group: Optional[Any] = None,
+        dist_sync_fn: Optional[Callable] = None,
+    ) -> None:
+        super().__init__(
+            dist_sync_on_step=dist_sync_on_step,
+            process_group=process_group,
+            dist_sync_fn=dist_sync_fn,
+        )
+        self.add_state("accuracy", default=torch.tensor([]), dist_reduce_fx="cat")
+        self.prefix = prefix
+
+    def update(self, prediction: torch.Tensor, target: torch.Tensor, *args, **kwargs):
+        assert prediction.shape == target.shape
+        self.accuracy = torch.cat([self.accuracy, ((prediction > 0.5)*1.0 == target).to(self.accuracy.device)])
+
+    def compute(self):
+        return {
+            self.prefix
+            + "_accuracy": torch.mean(self.accuracy)
+        }
