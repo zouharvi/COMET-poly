@@ -1,20 +1,14 @@
 import argparse
 import json
-import collections
-import itertools
-import random
 import csv
 
 args = argparse.ArgumentParser()
 args.add_argument("data_in")
 args.add_argument("data_out")
-args.add_argument("-c", "--crop", default=1, type=float)
 args = args.parse_args()
 
 with open(args.data_in) as f:
     data = [json.loads(line) for line in f]
-
-data = data[:int(len(data)*args.crop)]
 
 data_out = []
 for line in data:
@@ -31,6 +25,14 @@ with open(args.data_out, "w") as f:
     writer.writerows(data_out)
 
 
-# python3 experiments/04-generate_da_data.py data/jsonl/train.jsonl data/csv/train_da.csv -c 0.1
+# python3 experiments/04-generate_da_data.py data/jsonl/train.jsonl data/csv/train_da.csv
+
+# take head 1% of data/csv/train_da.csv and save it as data/csv/dev_da.csv
+# COUNT=$(wc -l < data/csv/train_da.csv)
+# COUNT=$((COUNT*1/100))
+# clip the first ${COUNT} lines from data/csv/train_da.csv and save it as data/csv/train_da.csv
+# head -n ${COUNT} data/csv/train_da.csv > data/csv/dev_da.csv
+# head -n 1 data/csv/dev_da.csv > tmp
+# tail -n +${COUNT} data/csv/train_da.csv >> tmp
+# mv tmp data/csv/train_da.csv
 # python3 experiments/04-generate_da_data.py data/jsonl/test.jsonl data/csv/test_da.csv
-# python3 experiments/04-generate_da_data.py data/jsonl/dev.jsonl data/csv/dev_da.csv

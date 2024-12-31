@@ -7,7 +7,6 @@ import random
 
 os.makedirs("data/jsonl", exist_ok=True)
 
-RANDOM_DEV = random.Random(0)
 RANDOM_SHUFFLE = random.Random(0)
 
 data = []
@@ -113,13 +112,6 @@ data_test = [x for x in data if x["year"] == 2023]
 data_train_by_langs = collections.defaultdict(list)
 for x in data_train:
     data_train_by_langs[x["langs"]].append(x)
-data_dev = []
-
-for lang in set(x["langs"] for x in data_test):
-    if lang not in data_train_by_langs:
-        continue
-    for _ in range(1000):
-        data_dev.append(data_train_by_langs[lang].pop(RANDOM_DEV.randint(0, len(data_train_by_langs[lang])-1)))
 
 # flatten and shuffle
 data_train = [
@@ -131,8 +123,6 @@ RANDOM_SHUFFLE.shuffle(data_train)
 
 print("TRAIN:", len(data_train))
 print("TEST: ", len(data_test))
-print("DEV:  ", len(data_dev))
 
 open("data/jsonl/train.jsonl", "w").writelines(json.dumps(line, ensure_ascii=False) + "\n" for line in data_train)
 open("data/jsonl/test.jsonl", "w").writelines(json.dumps(line, ensure_ascii=False) + "\n" for line in data_test)
-open("data/jsonl/dev.jsonl", "w").writelines(json.dumps(line, ensure_ascii=False) + "\n" for line in data_dev)
