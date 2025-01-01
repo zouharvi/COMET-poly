@@ -46,5 +46,5 @@ sbatch_gpu_long "secondrun_da" "comet-train --cfg configs/experimental/reference
 
 # export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
 
-sbatch_gpu_short "eval_firstrun_da" "python3 experiments/07-evaluate_da_model.py lightning_logs/version_18089135/checkpoints/epoch=2-step=35484-val_kendall=0.292.ckpt"
-sbatch_gpu_short "eval_firstrun_pw" "python3 experiments/06-evaluate_pw_model.py lightning_logs/version_18089134/checkpoints/epoch=0-step=24307-val_accuracy=0.650.ckpt"
+sbatch_gpu_short "eval_secondrun_da" "python3 experiments/07-evaluate_da_model.py lightning_logs/version_18089135/checkpoints/epoch=2-step=35484-val_kendall=0.292.ckpt"
+sbatch_gpu_short "eval_secondrun_pw" "python3 experiments/06-evaluate_pw_model.py lightning_logs/version_18089134/checkpoints/epoch=0-step=24307-val_accuracy=0.650.ckpt"

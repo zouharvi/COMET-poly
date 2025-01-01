@@ -49,7 +49,6 @@ scores_pred_all = model.predict([
 ], batch_size=32).scores
 
 ranks = []
-pw_accuracy = []
 for src, tgts in tqdm.tqdm(src_to_tgts):
     scores_pred = [
         [
@@ -64,25 +63,6 @@ for src, tgts in tqdm.tqdm(src_to_tgts):
     wins = np.sum(scores_pred, axis=1)
     ranks.append(np.argmax(wins))
 
-
-    scores_true = [
-        [
-            float(score1 > score2)
-            for tgt2, score2 in tgts
-        ]
-        for tgt1, score1 in tgts
-    ]
-    scores_pred = np.array(scores_pred)
-    scores_true = np.array(scores_true)
-    pw_accuracy += (scores_pred == scores_true).flatten().tolist()
-
-    # print(scores_true)
-    # print(scores_pred)
-    # print(scores_pred == scores_true)
-    # print(ranks)
-
-
-print(f"Pairwise accuracy: {np.average(pw_accuracy):.2%}")
 print(
     f"Average rank: {np.average(ranks):.2f}",
     f"with averarge number of hypotheses: {np.average([len(tgts) for _, tgts in src_to_tgts]):.2f}",
