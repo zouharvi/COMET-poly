@@ -74,5 +74,18 @@ for i in range(len(bins) - 1):
 # average bins between two
 bins = (bins[:-1] + bins[1:]) / 2
 
-plt.bar(bins, binned_accuracy)
+plt.figure(figsize=(3, 2))
+plt.bar(bins, binned_accuracy, width=(bins[1] - bins[0])/2)
 plt.ylim(0, 1)
+plt.text(
+    0.05, 0.95,
+    f"Average: {np.average(accuracy):.2%}",
+    transform=plt.gca().transAxes,
+    va="top",
+    fontsize=10
+)
+plt.ylabel("Accuracy", labelpad=-5)
+plt.gca().yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f"{x:.0%}"))
+plt.xlabel("Score $\\Delta$")
+plt.savefig("figures/08pw-delta_accuracy.pdf")
+plt.show()

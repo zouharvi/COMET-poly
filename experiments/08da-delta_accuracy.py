@@ -59,7 +59,7 @@ for src, tgts in src_to_tgts:
         for j in range(len(score_pred)):
             delta_true.append(abs(score_true[i] - score_true[j]))
             accuracy.append((score_pred[i] > score_pred[j]) == (score_true[i] > score_true[j]))
-            
+
 print(np.average(accuracy))
 bins = np.linspace(min(delta_true), max(delta_true), 10)
 # add accuracy to bins based on delta_true
@@ -74,5 +74,17 @@ for i in range(len(bins) - 1):
 # average bins between two
 bins = (bins[:-1] + bins[1:]) / 2
 
-plt.bar(bins, binned_accuracy)
+plt.figure(figsize=(3, 2))
+plt.bar(bins, binned_accuracy, width=(bins[1] - bins[0])/2)
 plt.ylim(0, 1)
+plt.text(
+    0.05, 0.95,
+    f"Average: {np.average(accuracy):.2%}",
+    transform=plt.gca().transAxes,
+    va="top",
+    fontsize=10
+)
+plt.ylabel("Accuracy")
+plt.xlabel("Score $\\Delta$")
+plt.savefig("figures/08da-delta_accuracy.pdf")
+plt.show()
