@@ -24,7 +24,7 @@ with open(f_data_in) as f:
 # match based on the source
 src_to_tgts = collections.defaultdict(lambda: collections.defaultdict(list))
 for x in data:
-    src_to_tgts[x["src"]][x["tgt"]].append(x["score"])
+    src_to_tgts[(x["src"], x["langs"])][x["tgt"]].append(x["score"])
 
 src_to_tgts = {
     src:
@@ -44,8 +44,8 @@ elif args.mode == "test":
 
 for src_to_tgts, f_data_out in recipe:
     data_out = []
-    for src, l in tqdm.tqdm(src_to_tgts):
-        for (mt1, score1), (mt2, score2) in itertools.combinations(l, 2):
+    for (src, langs), tgts in tqdm.tqdm(src_to_tgts):
+        for (mt1, score1), (mt2, score2) in itertools.combinations(tgts, 2):
             if abs(score1 - score2) <= args.threshold:
                 continue
             # randomly flip coin which one is better
@@ -70,12 +70,7 @@ for src_to_tgts, f_data_out in recipe:
 # 14098221
 # simple dedup
 # 11565738
-# remove ties
-# 11404868
-# threshold 10
-# 7845268
-# threshold 25
-# 4099341
+# 3435647
 # da
 # 756942
 

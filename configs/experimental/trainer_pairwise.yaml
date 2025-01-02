@@ -20,6 +20,7 @@ init_args:
   limit_test_batches: 1.0
   limit_predict_batches: 1.0
   overfit_batches: 0
+  # NOTE: must be divisible by 8!
   val_check_interval: 10_000
   num_sanity_val_steps: 3
   log_every_n_steps: 50
@@ -37,3 +38,9 @@ init_args:
   sync_batchnorm: false
   reload_dataloaders_every_n_epochs: 0
   default_root_dir: null
+
+# per epoch steps
+# for DA
+# 11828
+# for PW
+# 429358

@@ -22,6 +22,7 @@ model = comet.load_from_checkpoint(MODEL)
 # load data
 data = list(csv.DictReader(open("data/csv/test_da.csv")))
 src_to_tgts = collections.defaultdict(list)
+# TODO: fix language mixup!
 for x in data:
     src_to_tgts[x["src"]].append((x["mt"], float(x["score"])))
 src_to_tgts = {
