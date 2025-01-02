@@ -1,7 +1,8 @@
 pairwise_ranking_metric:
   class_path: comet.models.PairwiseRankingMetric
   init_args:
-    nr_frozen_epochs: 0.3
+    # this can be either proportion or number of steps
+    nr_frozen_epochs: 3_000
     keep_embeddings_frozen: True
     optimizer: AdamW
     encoder_learning_rate: 1.0e-06
@@ -17,14 +18,14 @@ pairwise_ranking_metric:
     dropout: 0.1
     batch_size: 8
     train_data: 
-      - data/csv/train_pairwise.csv
+      - data/csv/train_pw.csv
     validation_data: 
-      - data/csv/dev_pairwise.csv
+      - data/csv/dev_pw.csv
     hidden_sizes:
       - 2048
       - 1024
     activations: Tanh
     
-trainer: ../trainer.yaml
+trainer: trainer_pairwise.yaml
 early_stopping: early_stopping_pairwise.yaml
 model_checkpoint: model_checkpoint_pairwise.yaml

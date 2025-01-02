@@ -383,9 +383,15 @@ class CometModel(ptl.LightningModule, metaclass=abc.ABCMeta):
         loss_value = self.compute_loss(batch_prediction, batch_target)
 
         if (
-            self.nr_frozen_epochs < 1.0
-            and self.nr_frozen_epochs > 0.0
-            and batch_idx > self.first_epoch_total_steps * self.nr_frozen_epochs
+            (
+                # nr_frozen_epochs is actually number of steps
+                self.nr_frozen_epochs >= 1 and
+                batch_idx > self.nr_frozen_epochs
+            ) or (
+                self.nr_frozen_epochs < 1.0 and
+                self.nr_frozen_epochs > 0.0 and
+                batch_idx > self.first_epoch_total_steps * self.nr_frozen_epochs
+            )
         ):
             self.unfreeze_encoder()
             self._frozen = False

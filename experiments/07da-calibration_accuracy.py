@@ -74,7 +74,7 @@ for i in range(len(bins) - 1):
 # average bins between two
 bins = (bins[:-1] + bins[1:]) / 2
 
-plt.figure(figsize=(3, 2))
+plt.figure(figsize=(2.5, 1.5))
 plt.bar(bins, binned_accuracy, width=(bins[1] - bins[0])/2)
 plt.plot(plt.xlim(), [0.5, 1], color="red")
 plt.ylim(0, 1)
@@ -85,5 +85,6 @@ plt.xticks(
     [min(bins), max(bins)],
     ["0%", "100%"],
 )
+plt.tight_layout(pad=0)
 plt.savefig("figures/07da-calibration_accuracy.pdf")
 plt.show()
