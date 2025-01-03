@@ -5,41 +5,27 @@ import comet
 import csv
 import numpy as np
 import argparse
+import pickle
 import matplotlib.pyplot as plt
+import json
 import os
 os.chdir("/home/vilda/comet-ranking")
 
 
-MODEL = "lightning_logs/version_18089134/checkpoints/epoch=0-step=24307-val_accuracy=0.650.ckpt"
-
-# args = argparse.ArgumentParser()
-# args.add_argument("model")
-# args = args.parse_args()
-
-model = comet.load_from_checkpoint(MODEL)
-
+scores_pred_all = pickle.load(open("data/pickle/scores_pred_pw.pkl", "rb"))
 
 # load data
-data = list(csv.DictReader(open("data/csv/test_da.csv")))
+data = [json.loads(x) for x in open("data/jsonl/test.jsonl")]
 src_to_tgts = collections.defaultdict(list)
-# TODO: fix language mixup!
 for x in data:
-    src_to_tgts[x["src"]].append((x["mt"], float(x["score"])))
+    src_to_tgts[(x["src"], x["langs"])].append((x["tgt"], x["score"]))
 src_to_tgts = {
     src: sorted(tgts, key=lambda x: x[1], reverse=True)
     for src, tgts in src_to_tgts.items()
-    # take sources with at least 10 translations
-    if len(tgts) >= 10
+    # take sources with at least 2 translations
+    if len(tgts) >= 2
 }
-src_to_tgts = list(src_to_tgts.items())[:100]
-
-
-scores_pred_all = model.predict([
-    {"src": src, "mt1": tgt1, "mt2": tgt2}
-    for src, tgts in src_to_tgts
-    for tgt1, _ in tgts
-    for tgt2, _ in tgts
-], batch_size=32).scores
+src_to_tgts = list(src_to_tgts.items())[:1_000]
 
 src_to_tgts = [
     (src, [
@@ -49,6 +35,7 @@ src_to_tgts = [
     ])
     for src, tgts in src_to_tgts
 ]
+assert len(scores_pred_all) == 0
 
 # %%
 delta_true = []
