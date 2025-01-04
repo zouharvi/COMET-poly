@@ -1,9 +1,6 @@
 import collections
 import comet
-import csv
-import numpy as np
 import argparse
-import random
 import json
 import pickle
 

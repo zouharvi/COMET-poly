@@ -1,16 +1,11 @@
 import collections
-import copy
-import tqdm
 import comet
-import csv
-import numpy as np
 import argparse
-import scipy.stats
 import json
-import random
+import pickle
 
 args = argparse.ArgumentParser()
-args.add_argument("--model", default="lightning_logs/version_19759459/checkpoints/epoch=0-step=8750-val_accuracy=0.586.ckpt")
+args.add_argument("--model", default="lightning_logs/version_19759459/checkpoints/epoch=0-step=32500-val_accuracy=0.597.ckpt")
 args = args.parse_args()
 
 model = comet.load_from_checkpoint(args.model)
