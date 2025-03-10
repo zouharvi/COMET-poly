@@ -11,6 +11,7 @@ import tqdm
 args = argparse.ArgumentParser()
 args.add_argument("mode", choices={"train", "test"})
 args.add_argument("-t", "--threshold", default=0.0, type=float)
+args.add_argument("--target_type", choices={"binary", "difference"})
 args = args.parse_args()
 
 if args.mode == "test":
@@ -38,9 +39,9 @@ if args.mode == "train":
     i_train = set(range(len(src_to_tgts))) - i_dev
     src_to_tgts_dev = [src_to_tgts[i] for i in i_dev]
     src_to_tgts_train = [src_to_tgts[i] for i in i_train]
-    recipe = [(src_to_tgts_dev, "data/csv/dev_pw.csv"), (src_to_tgts_train, "data/csv/train_pw.csv")]
+    recipe = [(src_to_tgts_dev, f"data/csv/dev_pw_{args.target_type}.csv"), (src_to_tgts_train, f"data/csv/train_pw_{args.target_type}.csv")]
 elif args.mode == "test":
-    recipe = [(src_to_tgts, "data/csv/test_pw.csv")]
+    recipe = [(src_to_tgts, f"data/csv/test_pw_{args.target_type}.csv")]
 
 for src_to_tgts, f_data_out in recipe:
     data_out = []
@@ -56,7 +57,7 @@ for src_to_tgts, f_data_out in recipe:
                 "src": src,
                 "mt1": mt1,
                 "mt2": mt2,
-                "score": (score1 > score2)*1,
+                "score": (score1 > score2)*1 if args.target_type == "binary" else (score1 / 100.0 - score2 / 100.0),
             })
 
 
@@ -76,6 +77,6 @@ for src_to_tgts, f_data_out in recipe:
 
 
 """
-python3 experiments/03-generate_pw_data.py train -t 0
-python3 experiments/03-generate_pw_data.py test -t 0
+python3 experiments/03-generate_pw_data.py train -t 0 --target_type difference
+python3 experiments/03-generate_pw_data.py test -t 0 --target_type difference
 """

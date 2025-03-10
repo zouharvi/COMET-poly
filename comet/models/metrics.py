@@ -207,3 +207,32 @@ class PairwiseAccuracy(Metric):
             self.prefix
             + "_accuracy": torch.mean(self.accuracy)
         }
+
+
+class PairwiseDifferenceMSE(Metric):
+    full_state_update = True
+
+    def __init__(
+        self,
+        prefix: str = "",
+        dist_sync_on_step: bool = False,
+        process_group: Optional[Any] = None,
+        dist_sync_fn: Optional[Callable] = None,
+    ) -> None:
+        super().__init__(
+            dist_sync_on_step=dist_sync_on_step,
+            process_group=process_group,
+            dist_sync_fn=dist_sync_fn,
+        )
+        self.add_state("mse", default=torch.tensor([]), dist_reduce_fx="cat")
+        self.prefix = prefix
+
+    def update(self, prediction: torch.Tensor, target: torch.Tensor, *args, **kwargs):
+        assert prediction.shape == target.shape
+        self.mse = torch.cat([self.mse, ((prediction-target)**2).to(self.mse.device)])
+
+    def compute(self):
+        return {
+            self.prefix
+            + "_mse": torch.mean(self.mse)
+        }

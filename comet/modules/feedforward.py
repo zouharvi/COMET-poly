@@ -23,6 +23,11 @@ import torch
 from torch import nn
 
 
+class ModifiedSigmoid(nn.Sigmoid):
+    def forward(self, x):
+        return 2 * super(ModifiedSigmoid, self).forward(x) - 1  # ranges [-1, 1]
+
+
 class FeedForward(nn.Module):
     """Feed Forward Neural Network.
 
@@ -63,7 +68,9 @@ class FeedForward(nn.Module):
         self.ff = nn.Sequential(*modules)
 
     def build_activation(self, activation: str) -> nn.Module:
-        if hasattr(nn, activation.title()):
+        if activation == "ModifiedSigmoid":
+            return ModifiedSigmoid()
+        elif hasattr(nn, activation.title()):
             return getattr(nn, activation.title())()
         else:
             raise Exception(f"{activation} is not a valid activation function!")

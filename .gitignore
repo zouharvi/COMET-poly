@@ -1,11 +1,12 @@
 *.pkl
-*DS_Store 
+*DS_Store
 data/
 lightning_logs/
 figures
 wmt21/
 
 .vscode
+.idea
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

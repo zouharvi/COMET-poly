@@ -32,7 +32,7 @@ from torch import nn
 from transformers.optimization import Adafactor, get_constant_schedule_with_warmup
 
 from comet.models.base import CometModel
-from comet.models.metrics import PairwiseAccuracy
+from comet.models.metrics import PairwiseAccuracy, PairwiseDifferenceMSE
 from comet.models.utils import Prediction
 
 
@@ -73,6 +73,8 @@ class PairwiseRankingMetric(CometModel):
         activations (str): Feed Forward activation function.
         final_activation (str): Feed Forward final activation.
         local_files_only (bool): Whether or not to only look at local files.
+        target_type (str): Whether the target is: `difference` - the score difference between mt1 and mt2,
+        or `binary` - whether mt1 is better than mt2
     """
 
 
@@ -103,6 +105,7 @@ class PairwiseRankingMetric(CometModel):
         final_activation: Optional[str] = None,
         load_pretrained_weights: bool = True,
         local_files_only: bool = False,
+        target_type: str = 'binary',
     ) -> None:
         super(PairwiseRankingMetric, self).__init__(
             nr_frozen_epochs=nr_frozen_epochs,
@@ -128,22 +131,33 @@ class PairwiseRankingMetric(CometModel):
             local_files_only=local_files_only,
         )
         self.save_hyperparameters()
+        if target_type == 'difference':
+            final_activation = 'ModifiedSigmoid'
+        elif target_type == 'binary':
+            final_activation = "Sigmoid"
+        else:
+            raise RuntimeError(f"Unknown target_type {self.target_type}")
         self.estimator = FeedForward(
             in_dim=self.encoder.output_units * (1+3+3),
             hidden_sizes=self.hparams.hidden_sizes,
             activations=self.hparams.activations,
             dropout=self.hparams.dropout,
-            final_activation="Sigmoid",
+            final_activation=final_activation,
             out_dim=1,
         )
 
     @property
     def loss(self):
-        return torch.nn.BCELoss()
+        if self.hparams.target_type == 'binary':
+            return torch.nn.BCELoss()
+        elif self.hparams.target_type == 'difference':
+            return torch.nn.MSELoss()
+        else:
+            raise RuntimeError(f"Unknown target_type {self.target_type}")
 
     def requires_references(self) -> bool:
         return False
-    
+
     def enable_context(self):
         if self.pool == "avg":
             self.use_context = True
@@ -176,7 +190,7 @@ class PairwiseRankingMetric(CometModel):
 
         if stage == "predict":
             return model_inputs
-        
+
         scores = [float(s["score"]) for s in sample]
         targets = Target(score=torch.tensor(scores, dtype=torch.float))
 
@@ -299,12 +313,20 @@ class PairwiseRankingMetric(CometModel):
             num_warmup_steps=self.hparams.warmup_steps,
         )
         return [optimizer], [scheduler]
-    
+
 
 
     def init_metrics(self):
         """Initializes train/validation metrics."""
-        self.train_metrics = PairwiseAccuracy(prefix="train")
-        self.val_metrics = nn.ModuleList(
-            [PairwiseAccuracy(prefix=d) for d in self.hparams.validation_data]
-        )
+        if self.hparams.target_type == 'binary':
+            self.train_metrics = PairwiseAccuracy(prefix="train")
+            self.val_metrics = nn.ModuleList(
+                [PairwiseAccuracy(prefix=d) for d in self.hparams.validation_data]
+            )
+        elif self.hparams.target_type == 'difference':
+            self.train_metrics = PairwiseDifferenceMSE(prefix="train")
+            self.val_metrics = nn.ModuleList(
+                [PairwiseDifferenceMSE(prefix=d) for d in self.hparams.validation_data]
+            )
+        else:
+            raise RuntimeError(f"Unknown target_type {self.target_type}")
