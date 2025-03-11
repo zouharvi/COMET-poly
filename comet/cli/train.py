@@ -35,13 +35,15 @@ import warnings
 import torch
 from jsonargparse import ActionConfigFile, ArgumentParser, namespace_to_dict
 from pytorch_lightning import seed_everything
-from pytorch_lightning.callbacks import (EarlyStopping, LearningRateMonitor,
-                                         ModelCheckpoint)
+from pytorch_lightning.callbacks import (
+    EarlyStopping, LearningRateMonitor, ModelCheckpoint
+)
 from pytorch_lightning.trainer.trainer import Trainer
 
 from comet.models import (
     PairwiseRankingMetric, RankingMetric, ReferencelessRegression,
-    RegressionMetric, UnifiedMetric
+    RegressionMetric, UnifiedMetric,
+    AnchorMetric,
 )
 
 torch.set_float32_matmul_precision('high')
@@ -63,6 +65,7 @@ def read_arguments() -> ArgumentParser:
         ReferencelessRegression, "referenceless_regression_metric"
     )
     parser.add_subclass_arguments(PairwiseRankingMetric, "pairwise_ranking_metric")
+    parser.add_subclass_arguments(AnchorMetric, "anchor_metric")
     parser.add_subclass_arguments(RankingMetric, "ranking_metric")
     parser.add_subclass_arguments(UnifiedMetric, "unified_metric")
     parser.add_subclass_arguments(EarlyStopping, "early_stopping")
@@ -167,6 +170,21 @@ def initialize_model(configs):
             )
         else:
             model = PairwiseRankingMetric(**namespace_to_dict(configs.pairwise_ranking_metric.init_args))
+    elif configs.anchor_metric is not None:
+        print(
+            json.dumps(
+                configs.anchor_metric.init_args, indent=4, default=lambda x: x.__dict__
+            )
+        )
+        if configs.load_from_checkpoint is not None:
+            logger.info(f"Loading weights from {configs.load_from_checkpoint}.")
+            model = AnchorMetric.load_from_checkpoint(
+                checkpoint_path=configs.load_from_checkpoint,
+                strict=configs.strict_load,
+                **namespace_to_dict(configs.anchor_metric.init_args),
+            )
+        else:
+            model = AnchorMetric(**namespace_to_dict(configs.anchor_metric.init_args))
     elif configs.unified_metric is not None:
         print(
             json.dumps(

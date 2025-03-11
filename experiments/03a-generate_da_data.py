@@ -25,14 +25,14 @@ with open(args.data_out, "w") as f:
     writer.writerows(data_out)
 
 
-# python3 experiments/04-generate_da_data.py data/jsonl/train.jsonl data/csv/train_da.csv
-
+"""
+python3 experiments/04-generate_da_data.py data/jsonl/train.jsonl data/csv/train_da.csv
 # take head 1% of data/csv/train_da.csv and save it as data/csv/dev_da.csv
-# COUNT=$(wc -l < data/csv/train_da.csv)
-# COUNT=$((COUNT*1/100))
+COUNT=500
 # clip the first ${COUNT} lines from data/csv/train_da.csv and save it as data/csv/train_da.csv
-# head -n ${COUNT} data/csv/train_da.csv > data/csv/dev_da.csv
-# head -n 1 data/csv/dev_da.csv > tmp
-# tail -n +${COUNT} data/csv/train_da.csv >> tmp
-# mv tmp data/csv/train_da.csv
-# python3 experiments/04-generate_da_data.py data/jsonl/test.jsonl data/csv/test_da.csv
+head -n 500 data/csv/train_da.csv > data/csv/dev_da.csv
+head -n 1 data/csv/dev_da.csv > tmp
+tail -n +500 data/csv/train_da.csv >> tmp
+mv tmp data/csv/train_da.csv
+python3 experiments/04-generate_da_data.py data/jsonl/test.jsonl data/csv/test_da.csv
+"""
