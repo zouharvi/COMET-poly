@@ -153,7 +153,7 @@ class AnchorMetric(RegressionMetric):
         """
         inputs = {k: [str(dic[k]) for dic in sample] for k in sample[0] if k != "score"}
         src_inputs = self.encoder.prepare_sample(inputs["src"])
-        mt1_inputs = self.encoder.prepare_sample(inputs["mt1"])
+        mt1_inputs = self.encoder.prepare_sample(inputs["mt"])
         mt2_inputs = self.encoder.prepare_sample(inputs["mt2"])
 
         src_inputs = {"src_" + k: v for k, v in src_inputs.items()}
@@ -222,7 +222,7 @@ class AnchorMetric(RegressionMetric):
         df = pd.read_csv(path)
         df = df[["src", "mt", "score", "mt2", "score2"]]
         df["src"] = df["src"].astype(str)
-        df["mt1"] = df["mt"].astype(str)
+        df["mt"] = df["mt"].astype(str)
         df["score"] = df["score"].astype("float16")
         df["mt2"] = df["mt2"].astype(str)
         df["score2"] = df["score2"].astype("float16")
@@ -243,7 +243,7 @@ class AnchorMetric(RegressionMetric):
             df["system"] = df["system"].astype(str)
 
         df = df[columns]
-        df["mt1"] = df["mt"].astype(str)
+        df["mt"] = df["mt"].astype(str)
         df["score"] = df["score"].astype("float16")
         df["mt2"] = df["mt2"].astype(str)
         df["score2"] = df["score2"].astype("float16")
