@@ -38,6 +38,8 @@ str2model = {
     "ranking_metric": RankingMetric,
     "unified_metric": UnifiedMetric,
     "xcomet_metric": XCOMETMetric,
+    "anchor_metric": AnchorMetric,
+    "pairwise_ranking_metric": PairwiseRankingMetric,
 }
 
 
