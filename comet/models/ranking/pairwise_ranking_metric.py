@@ -277,12 +277,15 @@ class PairwiseRankingMetric(CometModel):
 
 
     def configure_optimizers(
-        self,
+            self,
     ) -> Tuple[List[torch.optim.Optimizer], List[torch.optim.lr_scheduler.LambdaLR]]:
         """Pytorch Lightning method to configure optimizers and schedulers."""
         layer_parameters = self.encoder.layerwise_lr(
             self.hparams.encoder_learning_rate, self.hparams.layerwise_decay
         )
+        top_layers_parameters = [
+            {"params": self.estimator.parameters(), "lr": self.hparams.learning_rate}
+        ]
         if self.layerwise_attention:
             layerwise_attn_params = [
                 {
@@ -290,9 +293,9 @@ class PairwiseRankingMetric(CometModel):
                     "lr": self.hparams.learning_rate,
                 }
             ]
-            params = layer_parameters + layerwise_attn_params
+            params = layer_parameters + top_layers_parameters + layerwise_attn_params
         else:
-            params = layer_parameters
+            params = layer_parameters + top_layers_parameters
 
         if self.hparams.optimizer == "Adafactor":
             optimizer = Adafactor(
