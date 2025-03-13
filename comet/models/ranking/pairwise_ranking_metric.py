@@ -132,7 +132,7 @@ class PairwiseRankingMetric(CometModel):
         )
         self.save_hyperparameters()
         if target_type == 'difference':
-            final_activation = 'ModifiedSigmoid'
+            final_activation = None
         elif target_type == 'binary':
             final_activation = "Sigmoid"
         else:

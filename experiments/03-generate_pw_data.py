@@ -57,7 +57,7 @@ for src_to_tgts, f_data_out in recipe:
                 "src": src,
                 "mt1": mt1,
                 "mt2": mt2,
-                "score": (score1 > score2)*1 if args.target_type == "binary" else (score1 / 100.0 - score2 / 100.0),
+                "score": (score1 > score2)*1 if args.target_type == "binary" else score1 - score2,   # (score1 / 100.0 - score2 / 100.0),
             })
 
 
