@@ -236,3 +236,40 @@ class PairwiseDifferenceMSE(Metric):
             self.prefix
             + "_mse": torch.mean(self.mse)
         }
+
+
+class MultitaskMetrics(Metric):
+    full_state_update = True
+
+    def __init__(
+            self,
+            prefix: str = "",
+            dist_sync_on_step: bool = False,
+            process_group: Optional[Any] = None,
+            dist_sync_fn: Optional[Callable] = None,
+    ) -> None:
+        super().__init__(
+            dist_sync_on_step=dist_sync_on_step,
+            process_group=process_group,
+            dist_sync_fn=dist_sync_fn,
+        )
+        self.prefix = prefix
+
+        self.da_corr1 = RegressionMetrics(prefix, dist_sync_on_step, process_group, dist_sync_fn)
+        self.da_corr2 = RegressionMetrics(prefix, dist_sync_on_step, process_group, dist_sync_fn)
+        self.pw_acc = PairwiseAccuracy(prefix, dist_sync_on_step, process_group, dist_sync_fn)
+
+    def update(self, predictions: torch.Tensor, targets: torch.Tensor, *args, **kwargs):
+        self.da_corr1.update(predictions[0], targets[0])
+        self.da_corr2.update(predictions[1], targets[1])
+        self.pw_acc.update(predictions[2], targets[2], args, kwargs)
+
+    def compute(self):
+        da_corr1_result = self.da_corr1.compute()
+        da_corr1_result = {f"{key}1": value for key, value in da_corr1_result.items()}
+        da_corr2_result = self.da_corr2.compute()
+        da_corr2_result = {f"{key}2": value for key, value in da_corr2_result.items()}
+        pw_acc_result = self.pw_acc.compute()
+        final_output = {**da_corr1_result, **da_corr2_result, **pw_acc_result}
+        final_output[f"{self.prefix}_avg"] = sum(list(final_output.values())) / len(final_output)
+        return final_output
