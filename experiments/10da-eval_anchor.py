@@ -1,4 +1,4 @@
-import comet
+import comet_multi_cand
 import argparse
 import csv
 import scipy.stats
@@ -7,7 +7,7 @@ args = argparse.ArgumentParser()
 args.add_argument("model")
 args = args.parse_args()
 
-model = comet.load_from_checkpoint(args.model)
+model = comet_multi_cand.load_from_checkpoint(args.model)
 
 # load data
 data = list(csv.DictReader(open("data/csv/test_anchor.csv")))

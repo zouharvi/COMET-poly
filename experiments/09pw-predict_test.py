@@ -8,7 +8,7 @@ args = argparse.ArgumentParser()
 args.add_argument("--model", default="lightning_logs/version_19759459/checkpoints/epoch=0-step=32500-val_accuracy=0.597.ckpt")
 args = args.parse_args()
 
-model = comet.load_from_checkpoint(args.model)
+model = comet_multi_cand.load_from_checkpoint(args.model)
 
 # load data
 data = [json.loads(x) for x in open("data/jsonl/test.jsonl")]

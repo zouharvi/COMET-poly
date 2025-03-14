@@ -1,5 +1,5 @@
 import collections
-import comet
+import comet_multi_cand
 import argparse
 import json
 import pickle
@@ -8,7 +8,7 @@ args = argparse.ArgumentParser()
 args.add_argument("--model", default="lightning_logs/version_18089135/checkpoints/epoch=2-step=35484-val_kendall=0.292.ckpt")
 args = args.parse_args()
 
-model = comet.load_from_checkpoint(args.model)
+model = comet_multi_cand.load_from_checkpoint(args.model)
 
 # load data
 data = [json.loads(x) for x in open("data/jsonl/test.jsonl")]

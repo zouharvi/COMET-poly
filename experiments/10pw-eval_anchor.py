@@ -1,6 +1,6 @@
 import itertools
 import numpy as np
-import comet
+import comet_multi_cand
 import argparse
 import json
 import collections
@@ -12,7 +12,7 @@ args = argparse.ArgumentParser()
 args.add_argument("model")
 args = args.parse_args()
 
-model = comet.load_from_checkpoint(args.model)
+model = comet_multi_cand.load_from_checkpoint(args.model)
 
 # load data
 data = [json.loads(x) for x in open("data/jsonl/test.jsonl")]

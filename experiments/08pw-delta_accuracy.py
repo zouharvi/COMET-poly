@@ -1,7 +1,7 @@
 # %%
 
 import collections
-import comet
+import comet_multi_cand
 import csv
 import numpy as np
 import argparse
