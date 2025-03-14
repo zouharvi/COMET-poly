@@ -273,3 +273,29 @@ class MultitaskMetrics(Metric):
         final_output = {**da_corr1_result, **da_corr2_result, **pw_acc_result}
         final_output[f"{self.prefix}_avg"] = sum(list(final_output.values())) / len(final_output)
         return final_output
+
+
+class PairRegressionMetric(Metric):
+    full_state_update = True
+
+    def __init__(
+            self,
+            prefix: str = "",
+            dist_sync_on_step: bool = False,
+            process_group: Optional[Any] = None,
+            dist_sync_fn: Optional[Callable] = None,
+    ) -> None:
+        super().__init__(
+            dist_sync_on_step=dist_sync_on_step,
+            process_group=process_group,
+            dist_sync_fn=dist_sync_fn,
+        )
+        self.prefix = prefix
+
+        self.regression_metrics = RegressionMetrics(prefix, dist_sync_on_step, process_group, dist_sync_fn)
+
+    def update(self, predictions: torch.Tensor, targets: torch.Tensor, systems: Optional[List[str]] = None):
+        self.regression_metrics.update(predictions.view(-1), targets.view(-1), systems)
+
+    def compute(self):
+        return self.regression_metrics.compute()
