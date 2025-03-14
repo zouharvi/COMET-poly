@@ -19,6 +19,11 @@ pip install -e comet_multi_cand
 
 TODO
 
-## Training models
+## Training models and replicating experiments
 
-TODO
+The scripts for training new COMET models and running the experiments in the paper are in `experiments/`.
+First, start by fetching the data:
+```
+python3 experiments/01da-get_data.py
+python3 experiments/01multi-get_data.py
+```

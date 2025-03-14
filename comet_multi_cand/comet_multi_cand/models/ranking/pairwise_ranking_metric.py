@@ -180,7 +180,7 @@ class PairwiseRankingMetric(CometModel):
         """
         inputs = {k: [str(dic[k]) for dic in sample] for k in sample[0] if k != "score"}
         src_inputs = self.encoder.prepare_sample(inputs["src"])
-        mt1_inputs = self.encoder.prepare_sample(inputs["mt1"])
+        mt1_inputs = self.encoder.prepare_sample(inputs["mt"])
         mt2_inputs = self.encoder.prepare_sample(inputs["mt2"])
 
         src_inputs = {"src_" + k: v for k, v in src_inputs.items()}
@@ -246,9 +246,9 @@ class PairwiseRankingMetric(CometModel):
             List[dict]: List with input samples in the form of a dict
         """
         df = pd.read_csv(path)
-        df = df[["src", "mt1", "mt2", "score"]]
+        df = df[["src", "mt", "mt2", "score"]]
         df["src"] = df["src"].astype(str)
-        df["mt1"] = df["mt1"].astype(str)
+        df["mt"] = df["mt"].astype(str)
         df["mt2"] = df["mt2"].astype(str)
         df["score"] = df["score"].astype("float16")
         return df.to_dict("records")
@@ -261,7 +261,7 @@ class PairwiseRankingMetric(CometModel):
             List[dict]: List with input samples in the form of a dict
         """
         df = pd.read_csv(path)
-        columns = ["src", "mt1", "mt2", "score"]
+        columns = ["src", "mt", "mt2", "score"]
         # If system in columns we will use this to calculate system-level accuracy
         if "system" in df.columns:
             columns.append("system")
@@ -270,7 +270,7 @@ class PairwiseRankingMetric(CometModel):
         df = df[columns]
         df["score"] = df["score"].astype("float16")
         df["src"] = df["src"].astype(str)
-        df["mt1"] = df["mt1"].astype(str)
+        df["mt"] = df["mt"].astype(str)
         df["mt2"] = df["mt2"].astype(str)
         return df.to_dict("records")
 

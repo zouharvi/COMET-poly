@@ -195,23 +195,25 @@ class MultitaskRankingMetric(CometModel):
         """
         inputs = {k: [str(dic[k]) for dic in sample] for k in sample[0] if k != "score"}
         src_inputs = self.encoder.prepare_sample(inputs["src"])
-        mt1_inputs = self.encoder.prepare_sample(inputs["mt1"])
+        mt1_inputs = self.encoder.prepare_sample(inputs["mt"])
         mt2_inputs = self.encoder.prepare_sample(inputs["mt2"])
 
         src_inputs = {"src_" + k: v for k, v in src_inputs.items()}
-        mt1_inputs = {"mt1_" + k: v for k, v in mt1_inputs.items()}
+        mt1_inputs = {"mt_" + k: v for k, v in mt1_inputs.items()}
         mt2_inputs = {"mt2_" + k: v for k, v in mt2_inputs.items()}
         model_inputs = {**src_inputs, **mt1_inputs, **mt2_inputs}
 
         if stage == "predict":
             return model_inputs
 
-        scores_da1 = [float(s["score_da1"]) for s in sample]
-        scores_da2 = [float(s["score_da2"]) for s in sample]
-        scores_pw = [float(s["score_pw"]) for s in sample]
-        targets = [Target(score=torch.tensor(scores_da1, dtype=torch.float)),
-                   Target(score=torch.tensor(scores_da2, dtype=torch.float)),
-                   Target(score=torch.tensor(scores_pw, dtype=torch.float))]
+        scores_da1 = [float(s["score"]) for s in sample]
+        scores_da2 = [float(s["score2"]) for s in sample]
+        scores_pw = [(float(s["score"])>float("score2"))*1.0 for s in sample]
+        targets = [
+            Target(score=torch.tensor(scores_da1, dtype=torch.float)),
+            Target(score=torch.tensor(scores_da2, dtype=torch.float)),
+            Target(score=torch.tensor(scores_pw, dtype=torch.float))
+        ]
 
         if "system" in inputs:
             targets["system"] = inputs["system"]
@@ -364,9 +366,11 @@ class MultitaskRankingMetric(CometModel):
                 mt2_sentemb, prod2_src, diff2_src
             ), dim=1
         )
-        return Prediction(score=self.da_estimator(embedded_sequences_for_da1).view(-1)),\
-               Prediction(score=self.da_estimator(embedded_sequences_for_da2).view(-1)), \
-               Prediction(score=self.pw_binary_estimator(embedded_sequences_for_pw_binary).view(-1))
+        return (
+            Prediction(score=self.da_estimator(embedded_sequences_for_da1).view(-1)),
+            Prediction(score=self.da_estimator(embedded_sequences_for_da2).view(-1)),
+            Prediction(score=self.pw_binary_estimator(embedded_sequences_for_pw_binary).view(-1)),
+        )
 
     def read_training_data(self, path: str) -> List[dict]:
         """Method that reads the training data (a csv file) and returns a list of
@@ -376,9 +380,9 @@ class MultitaskRankingMetric(CometModel):
             List[dict]: List with input samples in the form of a dict
         """
         df = pd.read_csv(path)
-        df = df[["src", "mt1", "mt2", "score_da1", "score_da2", "score_pw"]]
+        df = df[["src", "mt", "mt2", "score_da1", "score_da2", "score_pw"]]
         df["src"] = df["src"].astype(str)
-        df["mt1"] = df["mt1"].astype(str)
+        df["mt"] = df["mt"].astype(str)
         df["mt2"] = df["mt2"].astype(str)
         df["score_da1"] = df["score_da1"].astype("float16")
         df["score_da2"] = df["score_da2"].astype("float16")
@@ -393,7 +397,7 @@ class MultitaskRankingMetric(CometModel):
             List[dict]: List with input samples in the form of a dict
         """
         df = pd.read_csv(path)
-        columns = ["src", "mt1", "mt2", "score_da1", "score_da2", "score_pw"]
+        columns = ["src", "mt", "mt2", "score_da1", "score_da2", "score_pw"]
         # If system in columns we will use this to calculate system-level accuracy
         if "system" in df.columns:
             columns.append("system")
@@ -404,7 +408,7 @@ class MultitaskRankingMetric(CometModel):
         df["score_da2"] = df["score_da2"].astype("float16")
         df["score_pw"] = df["score_pw"].astype("float16")
         df["src"] = df["src"].astype(str)
-        df["mt1"] = df["mt1"].astype(str)
+        df["mt"] = df["mt"].astype(str)
         df["mt2"] = df["mt2"].astype(str)
         return df.to_dict("records")
 
@@ -505,7 +509,7 @@ class MultitaskRankingMetric(CometModel):
             # Guideline for workers that typically works well.
             num_workers = 0 if is_windows else 2 * gpus
         elif is_windows and num_workers != 0:
-            logger.warning(
+            print(
                 "Due to limits of multiprocessing on Windows, it is likely that setting num_workers > 0 will result"
                 " in scores of 0. It is therefore recommended to set num_workers=0 or leave it to None (default)."
             )
