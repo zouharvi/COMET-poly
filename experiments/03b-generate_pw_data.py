@@ -77,6 +77,6 @@ for src_to_tgts, f_data_out in recipe:
 
 
 """
-python3 experiments/03-generate_pw_data.py train -t 0 --target_type difference
-python3 experiments/03-generate_pw_data.py test -t 0 --target_type difference
+python3 experiments/03b-generate_pw_data.py train -t 0 --target_type difference
+python3 experiments/03b-generate_pw_data.py test -t 0 --target_type difference
 """

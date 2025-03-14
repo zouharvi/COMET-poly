@@ -15,11 +15,11 @@ referenceless_regression_metric:
     layer_norm: False
     loss: mse
     dropout: 0.1
-    batch_size: 8
+    batch_size: 16
     train_data: 
-      - data/csv/train_da.csv
+      - data/csv/train_anchor.csv
     validation_data: 
-      - data/csv/dev_da.csv
+      - data/csv/dev_anchor.csv
     hidden_sizes:
       - 2048
       - 1024

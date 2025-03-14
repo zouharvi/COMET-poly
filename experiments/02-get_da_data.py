@@ -1,3 +1,5 @@
+# TODO: use subset2evaluate loader!
+
 import os
 import glob
 import re
