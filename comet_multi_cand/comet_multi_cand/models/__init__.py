@@ -25,10 +25,10 @@ from .base import CometModel
 from .multitask.unified_metric import UnifiedMetric
 from .multitask.xcomet_metric import XCOMETMetric
 from .ranking.ranking_metric import RankingMetric
-from .ranking.pairwise_ranking_metric import PairwiseRankingMetric
+from .multicand.pairwise_ranking_metric import PairwiseRankingMetric
 from .multicand.multitask_ranking_metric import MultitaskRankingMetric
 from .regression.anchor_metric import AnchorMetric
-from .regression.pairwise_referenceless_metric import PairwiseReferencelessMetric
+from .multicand.pairwise_referenceless_metric import PairwiseReferencelessMetric
 from .regression.referenceless import ReferencelessRegression
 from .regression.regression_metric import RegressionMetric
 from .download_utils import download_model_legacy
