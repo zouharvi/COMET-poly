@@ -1,43 +1,14 @@
-# -*- coding: utf-8 -*-
-# Copyright (C) 2020 Unbabel
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-r"""
-PairwiseReferencelessMetric
-========================
-    TODO
-"""
 from typing import Dict, List, Optional, Tuple, Union
 
 import pandas as pd
 import torch
-from comet_multi_cand.models.base import CometModel
+
+from comet_multi_cand.models.regression.regression_metric import RegressionMetric
 from comet_multi_cand.models.utils import Prediction, Target
 from comet_multi_cand.modules import FeedForward
-from torch import nn
-from transformers.optimization import Adafactor, get_constant_schedule_with_warmup
-from comet_multi_cand.models.base import CometModel
-from comet_multi_cand.models.metrics import PairRegressionMetric
-from comet_multi_cand.models.utils import Prediction
-from comet_multi_cand.models.utils import (
-    Prediction,
-    Target,
-)
 
-
-class PairwiseReferencelessMetric(CometModel):
-    """PairwiseReferencelessMetric:
+class MultiCandMetric(RegressionMetric):
+    """MultiCandMetric:
 
     Args:
         nr_frozen_epochs (Union[float, int]): Number of epochs (% of epoch) that the
@@ -90,17 +61,21 @@ class PairwiseReferencelessMetric(CometModel):
         layer: Union[str, int] = "mix",
         layer_transformation: str = "softmax",
         layer_norm: bool = True,
-        loss: str = None,
+        loss: str = "mse",
         dropout: float = 0.1,
         batch_size: int = 4,
         train_data: Optional[List[str]] = None,
         validation_data: Optional[List[str]] = None,
         hidden_sizes: List[int] = [2048, 1024],
         activations: str = "Tanh",
+        final_activation: Optional[str] = None,
         load_pretrained_weights: bool = True,
         local_files_only: bool = False,
+        additional_score_in: List[bool] = [False, False, False, False, False],
+        additional_score_out: List[bool] = [False, False, False, False, False],
+        additional_translation_in: List[bool] = [False, False, False, False, False],
     ) -> None:
-        super(PairwiseReferencelessMetric, self).__init__(
+        super(RegressionMetric, self).__init__(
             nr_frozen_epochs=nr_frozen_epochs,
             keep_embeddings_frozen=keep_embeddings_frozen,
             optimizer=optimizer,
@@ -119,23 +94,27 @@ class PairwiseReferencelessMetric(CometModel):
             batch_size=batch_size,
             train_data=train_data,
             validation_data=validation_data,
-            class_identifier="pairwise_referenceless_metric",
+            class_identifier="multicand_metric",
             load_pretrained_weights=load_pretrained_weights,
             local_files_only=local_files_only,
         )
+        self.additional_score_in = additional_score_in
+        self.additional_score_out = additional_score_out
+        self.additional_translation_in = additional_translation_in
+
         self.save_hyperparameters()
         self.estimator = FeedForward(
-            in_dim=self.encoder.output_units * (1 + 3 + 3),
-            hidden_sizes=self.hparams.hidden_sizes,
-            activations=self.hparams.activations,
-            dropout=self.hparams.dropout,
-            final_activation=None,
-            out_dim=2,
+            in_dim=self.encoder.output_units * (4 + 5 * sum(additional_translation_in)) + 1 * (sum(additional_score_in)),
+            hidden_sizes=hidden_sizes,
+            activations=activations,
+            dropout=dropout,
+            final_activation=final_activation,
+            out_dim=1 + sum(additional_score_out),
         )
 
     def requires_references(self) -> bool:
         return False
-
+    
     def enable_context(self):
         if self.pool == "avg":
             self.use_context = True
@@ -159,20 +138,33 @@ class PairwiseReferencelessMetric(CometModel):
         inputs = {k: [str(dic[k]) for dic in sample] for k in sample[0] if k != "score"}
         src_inputs = self.encoder.prepare_sample(inputs["src"])
         mt1_inputs = self.encoder.prepare_sample(inputs["mt"])
-        mt2_inputs = self.encoder.prepare_sample(inputs["mt2"])
 
         src_inputs = {"src_" + k: v for k, v in src_inputs.items()}
         mt1_inputs = {"mt1_" + k: v for k, v in mt1_inputs.items()}
-        mt2_inputs = {"mt2_" + k: v for k, v in mt2_inputs.items()}
-        model_inputs = {**src_inputs, **mt1_inputs, **mt2_inputs}
+
+        # embed additional translations
+        additional_translation_in = []
+        for i, flag in enumerate(self.additional_translation_in):
+            if not flag:
+                continue
+            obj = self.encoder.prepare_sample(inputs[f"mt{i+2}"])
+            additional_translation_in.append((obj["input_ids"], obj["attention_mask"]))
+
+        additional_score_in = torch.tensor([
+            # start at i=0 which corresponds to score2
+            [float(s[f"score{i+2}"]) for i, flag in enumerate(self.additional_score_in) if flag]
+            for s in sample
+        ], dtype=torch.float)
+
+        model_inputs = {**src_inputs, **mt1_inputs, "additional_translation_in": additional_translation_in, "additional_score_in": additional_score_in}
 
         if stage == "predict":
             return model_inputs
-
-        scores_da1 = [float(s["score_da1"]) for s in sample]
-        scores_da2 = [float(s["score_da2"]) for s in sample]
-        scores = [(da1, da2) for da1,da2 in zip(scores_da1, scores_da2)]
-        targets = Target(score=torch.tensor(scores, dtype=torch.float))
+        
+        targets = Target(score=torch.tensor([
+            [float(s["score"])] + [float(s[f"score{i+2}"]) for i, flag in enumerate(self.additional_score_out) if flag]
+            for s in sample
+        ], dtype=torch.float))
 
         if "system" in inputs:
             targets["system"] = inputs["system"]
@@ -185,11 +177,11 @@ class PairwiseReferencelessMetric(CometModel):
         src_attention_mask: torch.tensor,
         mt1_input_ids: torch.tensor,
         mt1_attention_mask: torch.tensor,
-        mt2_input_ids: torch.tensor,
-        mt2_attention_mask: torch.tensor,
+        additional_translation_in: List[Tuple[torch.tensor, torch.tensor]],
+        additional_score_in: torch.tensor,
         **kwargs
     ) -> Dict[str, torch.Tensor]:
-        """ReferencelessRegression model forward method.
+        """MultiCandMetric model forward method.
 
         Args:
             src_input_ids [torch.tensor]: input ids from source sentences.
@@ -202,21 +194,33 @@ class PairwiseReferencelessMetric(CometModel):
         """
         src_sentemb = self.get_sentence_embedding(src_input_ids, src_attention_mask)
         mt1_sentemb = self.get_sentence_embedding(mt1_input_ids, mt1_attention_mask)
-        mt2_sentemb = self.get_sentence_embedding(mt2_input_ids, mt2_attention_mask)
-
-        diff1_src = torch.abs(mt1_sentemb - src_sentemb)
-        prod1_src = mt1_sentemb * src_sentemb
-        diff2_src = torch.abs(mt2_sentemb - src_sentemb)
-        prod2_src = mt2_sentemb * src_sentemb
+        additional_sentembd = [self.get_sentence_embedding(*inp) for inp in additional_translation_in]
 
         embedded_sequences = torch.cat(
             (
-                src_sentemb,
-                mt1_sentemb, prod1_src, diff1_src,
-                mt2_sentemb, prod2_src, diff2_src
+                mt1_sentemb, src_sentemb,
+                mt1_sentemb * src_sentemb, torch.abs(mt1_sentemb - src_sentemb),
             ), dim=1
         )
-        return Prediction(score=self.estimator(embedded_sequences))
+
+        # add additional translations in
+        for mtX_sentembd in additional_sentembd:
+            embedded_sequences = torch.cat(
+                (
+                    # previous
+                    embedded_sequences,
+                    mtX_sentembd,
+                    mtX_sentembd * src_sentemb, torch.abs(mtX_sentembd - src_sentemb),
+                    mtX_sentembd * mt1_sentemb, torch.abs(mtX_sentembd - mt1_sentemb),
+                ), dim=1
+            )
+
+        # add additional scores in
+        embedded_sequences = torch.cat(
+            (embedded_sequences, additional_score_in.view(-1, sum(self.additional_score_in))),
+            dim=1
+        )
+        return Prediction(score=self.estimator(embedded_sequences).view(-1))
 
     def read_training_data(self, path: str) -> List[dict]:
         """Method that reads the training data (a csv file) and returns a list of
@@ -226,12 +230,21 @@ class PairwiseReferencelessMetric(CometModel):
             List[dict]: List with input samples in the form of a dict
         """
         df = pd.read_csv(path)
-        df = df[["src", "mt", "mt2", "score_da1", "score_da2"]]
+        df = df[["src", "mt", "score", "mt2", "score2", "mt3", "score3", "mt4", "score4", "mt5", "score5", "mt6", "score6"]]
         df["src"] = df["src"].astype(str)
         df["mt"] = df["mt"].astype(str)
+        df["score"] = df["score"].astype("float16")
         df["mt2"] = df["mt2"].astype(str)
-        df["score_da1"] = df["score_da1"].astype("float16")
-        df["score_da2"] = df["score_da2"].astype("float16")
+        df["score2"] = df["score2"].astype("float16")
+        df["mt3"] = df["mt3"].astype(str)
+        df["score3"] = df["score3"].astype("float16")
+        df["mt4"] = df["mt4"].astype(str)
+        df["score4"] = df["score4"].astype("float16")
+        df["mt5"] = df["mt5"].astype(str)
+        df["score5"] = df["score5"].astype("float16")
+        df["mt6"] = df["mt6"].astype(str)
+        df["score6"] = df["score6"].astype("float16")
+
         return df.to_dict("records")
 
     def read_validation_data(self, path: str) -> List[dict]:
@@ -242,65 +255,23 @@ class PairwiseReferencelessMetric(CometModel):
             List[dict]: List with input samples in the form of a dict
         """
         df = pd.read_csv(path)
-        columns = ["src", "mt", "mt2", "score_da1", "score_da2"]
+        columns = ["src", "mt", "score", "mt2", "score2", "mt3", "score3", "mt4", "score4", "mt5", "score5", "mt6", "score6"]
         # If system in columns we will use this to calculate system-level accuracy
         if "system" in df.columns:
             columns.append("system")
             df["system"] = df["system"].astype(str)
 
         df = df[columns]
-        df["score_da1"] = df["score_da1"].astype("float16")
-        df["score_da2"] = df["score_da2"].astype("float16")
-        df["src"] = df["src"].astype(str)
         df["mt"] = df["mt"].astype(str)
+        df["score"] = df["score"].astype("float16")
         df["mt2"] = df["mt2"].astype(str)
+        df["score2"] = df["score2"].astype("float16")
+        df["mt3"] = df["mt3"].astype(str)
+        df["score3"] = df["score3"].astype("float16")
+        df["mt4"] = df["mt4"].astype(str)
+        df["score4"] = df["score4"].astype("float16")
+        df["mt5"] = df["mt5"].astype(str)
+        df["score5"] = df["score5"].astype("float16")
+        df["mt6"] = df["mt6"].astype(str)
+        df["score6"] = df["score6"].astype("float16")
         return df.to_dict("records")
-
-    def init_metrics(self):
-        """Initializes train/validation metrics."""
-        self.train_metrics = PairRegressionMetric(prefix="train")
-        self.val_metrics = nn.ModuleList(
-            [PairRegressionMetric(prefix=d) for d in self.hparams.validation_data]
-        )
-
-
-    def configure_optimizers(
-        self,
-    ) -> Tuple[List[torch.optim.Optimizer], List[torch.optim.lr_scheduler.LambdaLR]]:
-        """Pytorch Lightning method to configure optimizers and schedulers."""
-        layer_parameters = self.encoder.layerwise_lr(
-            self.hparams.encoder_learning_rate, self.hparams.layerwise_decay
-        )
-        top_layers_parameters = [
-            {"params": self.estimator.parameters(), "lr": self.hparams.learning_rate},
-        ]
-        if self.layerwise_attention:
-            layerwise_attn_params = [
-                {
-                    "params": self.layerwise_attention.parameters(),
-                    "lr": self.hparams.learning_rate,
-                }
-            ]
-            params = layer_parameters + top_layers_parameters + layerwise_attn_params
-        else:
-            params = layer_parameters + top_layers_parameters
-
-        if self.hparams.optimizer == "Adafactor":
-            optimizer = Adafactor(
-                params,
-                lr=self.hparams.learning_rate,
-                relative_step=False,
-                scale_parameter=False,
-            )
-        else:
-            optimizer = torch.optim.AdamW(params, lr=self.hparams.learning_rate)
-
-        # If warmup setps are not defined we don't need a scheduler.
-        if self.hparams.warmup_steps < 2:
-            return [optimizer], []
-
-        scheduler = get_constant_schedule_with_warmup(
-            optimizer=optimizer,
-            num_warmup_steps=self.hparams.warmup_steps,
-        )
-        return [optimizer], [scheduler]

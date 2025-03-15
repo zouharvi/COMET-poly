@@ -20,12 +20,12 @@ Command for training new Metrics.
 
 e.g:
 ```
-    comet-train --cfg configs/models/regression_metric.yaml --seed_everything 12
+    comet-multi-cand-train --cfg configs/models/regression_metric.yaml --seed_everything 12
 ```
 
 For more details run the following command:
 ```
-    comet-train --help
+    comet-multi-cand-train --help
 ```
 """
 import json
@@ -43,7 +43,7 @@ from pytorch_lightning.trainer.trainer import Trainer
 from comet_multi_cand.models import (
     PairwiseRankingMetric, RankingMetric, ReferencelessRegression,
     RegressionMetric, UnifiedMetric,
-    AnchorMetric, MultitaskRankingMetric, PairwiseReferencelessMetric
+    MultiCandMetric, MultitaskRankingMetric,
 )
 
 torch.set_float32_matmul_precision('high')
@@ -64,10 +64,9 @@ def read_arguments() -> ArgumentParser:
     parser.add_subclass_arguments(
         ReferencelessRegression, "referenceless_regression_metric"
     )
+    parser.add_subclass_arguments(MultiCandMetric, "multicand_metric")
     parser.add_subclass_arguments(MultitaskRankingMetric, "multitask_ranking_metric")
     parser.add_subclass_arguments(PairwiseRankingMetric, "pairwise_ranking_metric")
-    parser.add_subclass_arguments(AnchorMetric, "anchor_metric")
-    parser.add_subclass_arguments(PairwiseReferencelessMetric, "pairwise_referenceless_metric")
     parser.add_subclass_arguments(RankingMetric, "ranking_metric")
     parser.add_subclass_arguments(UnifiedMetric, "unified_metric")
     parser.add_subclass_arguments(EarlyStopping, "early_stopping")
@@ -172,21 +171,21 @@ def initialize_model(configs):
             )
         else:
             model = PairwiseRankingMetric(**namespace_to_dict(configs.pairwise_ranking_metric.init_args))
-    elif configs.anchor_metric is not None:
+    elif configs.multicand_metric is not None:
         print(
             json.dumps(
-                configs.anchor_metric.init_args, indent=4, default=lambda x: x.__dict__
+                configs.multicand_metric.init_args, indent=4, default=lambda x: x.__dict__
             )
         )
         if configs.load_from_checkpoint is not None:
             logger.info(f"Loading weights from {configs.load_from_checkpoint}.")
-            model = AnchorMetric.load_from_checkpoint(
+            model = MultiCandMetric.load_from_checkpoint(
                 checkpoint_path=configs.load_from_checkpoint,
                 strict=configs.strict_load,
-                **namespace_to_dict(configs.anchor_metric.init_args),
+                **namespace_to_dict(configs.multicand_metric.init_args),
             )
         else:
-            model = AnchorMetric(**namespace_to_dict(configs.anchor_metric.init_args))
+            model = MultiCandMetric(**namespace_to_dict(configs.multicand_metric.init_args))
     elif configs.pairwise_referenceless_metric is not None:
         print(
             json.dumps(

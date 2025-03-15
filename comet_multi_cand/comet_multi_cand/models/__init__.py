@@ -27,8 +27,8 @@ from .multitask.xcomet_metric import XCOMETMetric
 from .ranking.ranking_metric import RankingMetric
 from .multicand.pairwise_ranking_metric import PairwiseRankingMetric
 from .multicand.multitask_ranking_metric import MultitaskRankingMetric
-from .regression.anchor_metric import AnchorMetric
-from .multicand.pairwise_referenceless_metric import PairwiseReferencelessMetric
+from .multicand.multicand import MultiCandMetric
+from .multicand.pairwise_ranking_metric import PairwiseRankingMetric
 from .regression.referenceless import ReferencelessRegression
 from .regression.regression_metric import RegressionMetric
 from .download_utils import download_model_legacy
@@ -40,8 +40,7 @@ str2model = {
     "ranking_metric": RankingMetric,
     "unified_metric": UnifiedMetric,
     "xcomet_metric": XCOMETMetric,
-    "anchor_metric": AnchorMetric,
-    "pairwise_referenceless_metric": PairwiseReferencelessMetric,
+    "multicand_metric": MultiCandMetric,
     "pairwise_ranking_metric": PairwiseRankingMetric,
     "multitask_ranking_metric": MultitaskRankingMetric,
 }

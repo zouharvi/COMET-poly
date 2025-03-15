@@ -1,4 +1,4 @@
-anchor_metric:
+multicand_metric:
   class_path: comet_multi_cand.models.AnchorMetric
   init_args:
     nr_frozen_epochs: 0.3
@@ -17,14 +17,16 @@ anchor_metric:
     dropout: 0.1
     batch_size: 16
     train_data: 
-      - data/csv/train_anchor.csv
+      - data/csv/train_multi.csv
     validation_data: 
-      - data/csv/dev_anchor.csv
+      - data/csv/dev_multi.csv
     hidden_sizes:
       - 2048
       - 1024
     activations: Tanh
-    use_score: False
+    additional_score_in: [False, False, False, False, False]
+    additional_score_out: [False, False, False, False, False]
+    additional_translation_in: [False, False, False, False, False]
     
 trainer: ../trainer.yaml
 early_stopping: ../early_stopping.yaml

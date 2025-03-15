@@ -1,44 +1,19 @@
-# -*- coding: utf-8 -*-
-# Copyright (C) 2020 Unbabel
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-r"""
-MultitaskRankingMetric
-========================
-    TODO
-"""
 import os
 import warnings
 from typing import Dict, List, Optional, Tuple, Union
 
 import pandas as pd
 import torch
+import pytorch_lightning as ptl
+
+from torch import nn
+from transformers.optimization import Adafactor, get_constant_schedule_with_warmup
+from comet_multi_cand.models.metrics import MultitaskMetrics
+from torch.utils.data import DataLoader, SequentialSampler
 
 from comet_multi_cand.models.base import CometModel
 from comet_multi_cand.models.utils import Prediction, Target
 from comet_multi_cand.modules import FeedForward
-
-
-from torch import nn
-from transformers.optimization import Adafactor, get_constant_schedule_with_warmup
-
-from comet_multi_cand.models.base import CometModel
-from comet_multi_cand.models.metrics import MultitaskMetrics
-from comet_multi_cand.models.utils import Prediction
-
-from torch.utils.data import DataLoader, RandomSampler, SequentialSampler, Subset
-import pytorch_lightning as ptl
 from comet_multi_cand.models.predict_pbar import PredictProgressBar
 from comet_multi_cand.models.predict_writer import CustomWriter
 from comet_multi_cand.models.utils import (
