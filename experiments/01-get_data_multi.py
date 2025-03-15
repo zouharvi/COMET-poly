@@ -1,6 +1,7 @@
 import utils
 import csv
 import random
+import os
 
 def process_data(data):
     data_new = []
@@ -11,7 +12,7 @@ def process_data(data):
     for line in data:
         for sys in line["scores"].keys():
             tgts = [
-                (line["tgt"][sys2], line["scores"][sys2])
+                (line["tgt"][sys2], line["scores"][sys2]["human"])
                 for sys2 in line["scores"].keys()
                 if line["tgt"][sys] != line["tgt"][sys2]
             ]
@@ -45,6 +46,7 @@ data_train = [data_train[i] for i in range(len(data_train)) if i not in data_dev
 
 
 if __name__ == "__main__":
+    os.makedirs("data/csv", exist_ok=True)
     def write_data(data, split):
         print("Writing", split, "of size", str(len(data)//1000)+"k")
         with open(f"data/csv/{split}_multi.csv", "w") as f:

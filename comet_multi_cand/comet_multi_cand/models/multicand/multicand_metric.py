@@ -1,5 +1,6 @@
 from typing import Dict, List, Optional, Tuple, Union
 
+from comet_multi_cand.models.metrics import MultiCandMetrics
 import pandas as pd
 import torch
 
@@ -170,6 +171,13 @@ class MultiCandMetric(RegressionMetric):
             targets["system"] = inputs["system"]
 
         return model_inputs, targets
+    
+    def init_metrics(self):
+        """Initializes train/validation metrics."""
+        self.train_metrics = MultiCandMetrics(prefix="train")
+        self.val_metrics = torch.nn.ModuleList(
+            [MultiCandMetrics(prefix=d) for d in self.hparams.validation_data]
+        )
 
     def forward(
         self,
@@ -216,11 +224,21 @@ class MultiCandMetric(RegressionMetric):
             )
 
         # add additional scores in
-        embedded_sequences = torch.cat(
-            (embedded_sequences, additional_score_in.view(-1, sum(self.additional_score_in))),
-            dim=1
-        )
-        return Prediction(score=self.estimator(embedded_sequences).view(-1))
+        if sum(self.additional_score_in) > 0:
+            embedded_sequences = torch.cat(
+                (embedded_sequences, additional_score_in.view(-1, sum(self.additional_score_in))),
+                dim=1
+            )
+        return Prediction(score=self.estimator(embedded_sequences))
+
+
+    def estimate(
+        self,
+        src_sentemb: torch.Tensor,
+        mt_sentemb: torch.Tensor,
+        ref_sentemb: torch.Tensor,
+    ) -> Prediction:
+        raise NotImplementedError("Estimate method not implemented for MultiCandMetric. Intentionally not inheriting from RegressionMetric.")
 
     def read_training_data(self, path: str) -> List[dict]:
         """Method that reads the training data (a csv file) and returns a list of

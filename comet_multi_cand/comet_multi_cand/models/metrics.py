@@ -299,3 +299,14 @@ class PairRegressionMetric(Metric):
 
     def compute(self):
         return self.regression_metrics.compute()
+
+
+class MultiCandMetrics(RegressionMetrics):
+    def update(
+        self,
+        preds: torch.Tensor,
+        target: torch.Tensor,
+        systems: Optional[List[str]] = None,
+    ) -> None:  # type: ignore
+        # just take the first element (prediction for main translation) and fall back with other functions
+        super().update(preds[:, 0], target[:, 0], systems)

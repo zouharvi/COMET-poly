@@ -1,5 +1,5 @@
 multicand_metric:
-  class_path: comet_multi_cand.models.AnchorMetric
+  class_path: comet_multi_cand.models.MultiCandMetric
   init_args:
     nr_frozen_epochs: 0.3
     keep_embeddings_frozen: True

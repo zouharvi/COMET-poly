@@ -1,5 +1,5 @@
 multicand_metric:
-  class_path: comet_multi_cand.models.AnchorMetric
+  class_path: comet_multi_cand.models.MultiCandMetric
   init_args:
     nr_frozen_epochs: 0.3
     keep_embeddings_frozen: True
@@ -25,8 +25,8 @@ multicand_metric:
       - 1024
     activations: Tanh
     additional_score_in: [False, False, False, False, False]
-    additional_score_out: [False, False, False, False, False]
-    additional_translation_in: [False, False, False, False, False]
+    additional_score_out: [True, False, False, False, False]
+    additional_translation_in: [True, False, False, False, False]
     
 trainer: ../trainer.yaml
 early_stopping: ../early_stopping.yaml

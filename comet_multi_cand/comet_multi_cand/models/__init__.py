@@ -27,7 +27,7 @@ from .multitask.xcomet_metric import XCOMETMetric
 from .ranking.ranking_metric import RankingMetric
 from .multicand.pairwise_ranking_metric import PairwiseRankingMetric
 from .multicand.multitask_ranking_metric import MultitaskRankingMetric
-from .multicand.multicand import MultiCandMetric
+from .multicand.multicand_metric import MultiCandMetric
 from .multicand.pairwise_ranking_metric import PairwiseRankingMetric
 from .regression.referenceless import ReferencelessRegression
 from .regression.regression_metric import RegressionMetric
