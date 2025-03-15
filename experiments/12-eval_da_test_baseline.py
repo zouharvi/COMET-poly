@@ -2,7 +2,7 @@
 
 import csv
 import numpy as np
-import scipy.stats
+import utils
 
 data_multi_sim = list(csv.DictReader(open("data/csv/test_multi_sim.csv")))
 data_multi_ran = list(csv.DictReader(open("data/csv/test_multi.csv")))
@@ -23,13 +23,10 @@ def pred_score_v2(line):
 
 def eval_baseline(name, fn, data):
     scores_pred = [fn(x) for x in data]
-    corr_pearson = scipy.stats.pearsonr([float(x["score"]) for x in data], scores_pred)[0]
-    corr_kendal = scipy.stats.kendalltau([float(x["score"]) for x in data], scores_pred, variant="b")[0]
-    print(f"{name:>30} ρ={corr_pearson:.3f} τ={corr_kendal:.3f}")
+    corr_pearson, corr_kendall = utils.eval_da_per_lang(scores_pred, data)
+    print(f"{name:>30} ρ={corr_pearson:.3f} τ={corr_kendall:.3f}")
 
 eval_baseline("closest", pred_score_v1, data_multi_sim)
 eval_baseline("closest-avg", pred_score_v2, data_multi_sim)
 eval_baseline("random", pred_score_v2, data_multi_ran)
 eval_baseline("random-avg", pred_score_v2, data_multi_ran)
-
-# TODO: eval on each language separatedly
