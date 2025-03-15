@@ -19,3 +19,5 @@ accuracy = np.average([
     for x, y1_pred, y2_pred in zip(data, scores1_pred, scores2_pred)
 ])
 print(f"Accuracy: {accuracy:.3f}")
+
+# TODO: eval on each language separatedly

@@ -180,6 +180,7 @@ class WMTKendall(Metric):
             / (self.concordance + self.discordance)
         }
 
+
 class PairwiseAccuracy(Metric):
     full_state_update = True
 
