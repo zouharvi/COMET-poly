@@ -15,7 +15,7 @@ multicand_metric:
     layer_norm: False
     loss: mse
     dropout: 0.1
-    batch_size: 16
+    batch_size: 8
     train_data: 
       - data/csv/train_multi.csv
     validation_data: 
@@ -29,6 +29,6 @@ multicand_metric:
     additional_score_out: [False, False, False, False, False]
     use_ref: True
     
-trainer: ../trainer.yaml
+trainer: ../trainer_half.yaml
 early_stopping: ../early_stopping.yaml
 model_checkpoint: ../model_checkpoint.yaml
