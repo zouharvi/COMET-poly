@@ -4,12 +4,12 @@ import csv
 import utils
 
 args = argparse.ArgumentParser()
-args.add_argument("--model", default="TODO")
+args.add_argument("model")
 args = args.parse_args()
 
 model = comet_multi_cand.load_from_checkpoint(args.model)
 data = list(csv.DictReader(open("data/csv/test_multi.csv")))
-scores_pred = model.predict(data, batch_size=32).scores
+scores_pred = model.predict(data, batch_size=64).scores
 # assume the output is always a list the size of number of additional_score_out+1
 scores_pred = [x[0] for x in scores_pred]
 

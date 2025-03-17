@@ -28,5 +28,5 @@ def eval_baseline(name, fn, data):
 
 eval_baseline("closest", pred_score_v1, data_multi_sim)
 eval_baseline("closest-avg", pred_score_v2, data_multi_sim)
-eval_baseline("random", pred_score_v2, data_multi_ran)
+eval_baseline("random", pred_score_v1, data_multi_ran)
 eval_baseline("random-avg", pred_score_v2, data_multi_ran)

@@ -681,7 +681,7 @@ class CometModel(ptl.LightningModule, metaclass=abc.ABCMeta):
         else:
             metadata = []
 
-        output = Prediction(scores=scores, system_score=sum(scores) / len(scores))
+        output = Prediction(scores=scores)
 
         # Restore order of samples!
         if length_batching and gpus < 2:
