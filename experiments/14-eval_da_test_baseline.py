@@ -23,8 +23,8 @@ def pred_score_v2(line):
 
 def eval_baseline(name, fn, data):
     scores_pred = [fn(x) for x in data]
-    corr_pearson, corr_kendall = utils.eval_da_per_lang(scores_pred, data)
-    print(f"{name:>30} ρ={corr_pearson:.3f} τ={corr_kendall:.3f}")
+    res_pearson, res_kendall, res_errmean = utils.eval_da_per_lang(scores_pred, data)
+    print(f"{name:>20} ρ={res_pearson:.3f} τ={res_kendall:.3f} e={res_errmean:.1f}")
 
 eval_baseline("closest", pred_score_v1, data_multi_sim)
 eval_baseline("closest-avg", pred_score_v2, data_multi_sim)

@@ -25,10 +25,12 @@ def eval_da_per_lang(y_pred, data):
 
     out_pearson = []
     out_kendall = []
+    out_meanerr = []
     for score_v in score.values():
         score_v = np.array(score_v)
         # take abs because sometimes the direction can be flipped 
         out_pearson.append(abs(scipy.stats.pearsonr(score_v[:, 0], score_v[:, 1])[0]))
         out_kendall.append(abs(scipy.stats.kendalltau(score_v[:, 0], score_v[:, 1], variant="b")[0]))
+        out_meanerr.append(np.mean(np.abs(score_v[:, 0] - score_v[:, 1])))
 
-    return np.average(out_pearson), np.average(out_kendall)
+    return np.average(out_pearson), np.average(out_kendall), np.average(out_meanerr)
