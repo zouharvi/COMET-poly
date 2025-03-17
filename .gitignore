@@ -4,6 +4,7 @@ data/
 lightning_logs/
 figures
 wmt21/
+computed
 
 .vscode
 .idea
