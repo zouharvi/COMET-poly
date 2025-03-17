@@ -75,6 +75,7 @@ class MultiCandMetric(RegressionMetric):
         additional_score_in: List[bool] = [False, False, False, False, False],
         additional_score_out: List[bool] = [False, False, False, False, False],
         additional_translation_in: List[bool] = [False, False, False, False, False],
+        use_ref: bool = False
     ) -> None:
         super(RegressionMetric, self).__init__(
             nr_frozen_epochs=nr_frozen_epochs,
@@ -102,10 +103,11 @@ class MultiCandMetric(RegressionMetric):
         self.additional_score_in = additional_score_in
         self.additional_score_out = additional_score_out
         self.additional_translation_in = additional_translation_in
+        self.use_ref = use_ref
 
         self.save_hyperparameters()
         self.estimator = FeedForward(
-            in_dim=self.encoder.output_units * (4 + 5 * sum(additional_translation_in)) + 1 * (sum(additional_score_in)),
+            in_dim=self.encoder.output_units * (4 + (5 + 2 * use_ref) * sum(additional_translation_in) + 3 * use_ref) + 1 * (sum(additional_score_in)),
             hidden_sizes=hidden_sizes,
             activations=activations,
             dropout=dropout,
@@ -114,7 +116,7 @@ class MultiCandMetric(RegressionMetric):
         )
 
     def requires_references(self) -> bool:
-        return False
+        return self.use_ref
     
     def enable_context(self):
         if self.pool == "avg":
@@ -157,7 +159,12 @@ class MultiCandMetric(RegressionMetric):
             for s in sample
         ], dtype=torch.float)
 
-        model_inputs = {**src_inputs, **mt1_inputs, "additional_translation_in": additional_translation_in, "additional_score_in": additional_score_in}
+        if self.use_ref:
+            ref_inputs = {"ref_" + k: v for k, v in self.encoder.prepare_sample(inputs["ref"]).items()}
+        else:
+            ref_inputs = {}
+
+        model_inputs = {**src_inputs, **mt1_inputs, "additional_translation_in": additional_translation_in, "additional_score_in": additional_score_in, **ref_inputs}
 
         if stage == "predict":
             return model_inputs
@@ -166,9 +173,6 @@ class MultiCandMetric(RegressionMetric):
             [float(s["score"])] + [float(s[f"score{i+2}"]) for i, flag in enumerate(self.additional_score_out) if flag]
             for s in sample
         ], dtype=torch.float))
-
-        if "system" in inputs:
-            targets["system"] = inputs["system"]
 
         return model_inputs, targets
     
@@ -187,6 +191,8 @@ class MultiCandMetric(RegressionMetric):
         mt1_attention_mask: torch.tensor,
         additional_translation_in: List[Tuple[torch.tensor, torch.tensor]],
         additional_score_in: torch.tensor,
+        ref_input_ids: Optional[torch.tensor] = None,
+        ref_attention_mask: Optional[torch.tensor] = None,
         **kwargs
     ) -> Dict[str, torch.Tensor]:
         """MultiCandMetric model forward method.
@@ -223,6 +229,25 @@ class MultiCandMetric(RegressionMetric):
                 ), dim=1
             )
 
+
+        if self.use_ref:
+            ref_sentemb = self.get_sentence_embedding(ref_input_ids, ref_attention_mask)
+            embedded_sequences = torch.cat(
+                (
+                    embedded_sequences,
+                    ref_sentemb,
+                    ref_sentemb * mt1_sentemb, torch.abs(ref_sentemb - mt1_sentemb),
+                ), dim=1
+            )
+            for mtX_sentembd in additional_sentembd:
+                embedded_sequences = torch.cat(
+                    (
+                        # previous
+                        embedded_sequences,
+                        ref_sentemb * mtX_sentembd, torch.abs(ref_sentemb - mtX_sentembd),
+                    ), dim=1
+                )
+
         # add additional scores in
         if sum(self.additional_score_in) > 0:
             embedded_sequences = torch.cat(
@@ -248,7 +273,7 @@ class MultiCandMetric(RegressionMetric):
             List[dict]: List with input samples in the form of a dict
         """
         df = pd.read_csv(path)
-        df = df[["src", "mt", "score", "mt2", "score2", "mt3", "score3", "mt4", "score4", "mt5", "score5", "mt6", "score6"]]
+        df = df[["src", "mt", "score", "mt2", "score2", "mt3", "score3", "mt4", "score4", "mt5", "score5", "mt6", "score6"] + (["ref"] if self.use_ref else [])]
         df["src"] = df["src"].astype(str)
         df["mt"] = df["mt"].astype(str)
         df["score"] = df["score"].astype("float16")
@@ -262,6 +287,8 @@ class MultiCandMetric(RegressionMetric):
         df["score5"] = df["score5"].astype("float16")
         df["mt6"] = df["mt6"].astype(str)
         df["score6"] = df["score6"].astype("float16")
+        if self.use_ref:
+            df["ref"] = df["ref"].astype(str)
 
         return df.to_dict("records")
 
@@ -272,24 +299,4 @@ class MultiCandMetric(RegressionMetric):
         Returns:
             List[dict]: List with input samples in the form of a dict
         """
-        df = pd.read_csv(path)
-        columns = ["src", "mt", "score", "mt2", "score2", "mt3", "score3", "mt4", "score4", "mt5", "score5", "mt6", "score6"]
-        # If system in columns we will use this to calculate system-level accuracy
-        if "system" in df.columns:
-            columns.append("system")
-            df["system"] = df["system"].astype(str)
-
-        df = df[columns]
-        df["mt"] = df["mt"].astype(str)
-        df["score"] = df["score"].astype("float16")
-        df["mt2"] = df["mt2"].astype(str)
-        df["score2"] = df["score2"].astype("float16")
-        df["mt3"] = df["mt3"].astype(str)
-        df["score3"] = df["score3"].astype("float16")
-        df["mt4"] = df["mt4"].astype(str)
-        df["score4"] = df["score4"].astype("float16")
-        df["mt5"] = df["mt5"].astype(str)
-        df["score5"] = df["score5"].astype("float16")
-        df["mt6"] = df["mt6"].astype(str)
-        df["score6"] = df["score6"].astype("float16")
-        return df.to_dict("records")
+        return self.read_training_data(path)

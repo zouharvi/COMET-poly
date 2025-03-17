@@ -20,3 +20,9 @@ sbatch_gpu_bigg "train_multicand_4t04s" "comet-multi-cand-train --cfg comet_mult
 sbatch_gpu_bigg "train_multicand_5t00s" "comet-multi-cand-train --cfg comet_multi_cand/configs/experimental/model_multicand_5t00s.yaml" # todo training
 sbatch_gpu_bigg "train_multicand_5t50s" "comet-multi-cand-train --cfg comet_multi_cand/configs/experimental/model_multicand_5t50s.yaml" # todo training
 sbatch_gpu_bigg "train_multicand_5t05s" "comet-multi-cand-train --cfg comet_multi_cand/configs/experimental/model_multicand_5t05s.yaml" # todo training
+
+# reference-based
+sbatch_gpu_bigg "train_multicand_ref_0t00s" "comet-multi-cand-train --cfg comet_multi_cand/configs/experimental/model_multicand_ref_0t00s.yaml" # in training
+sbatch_gpu_bigg "train_multicand_ref_1t00s" "comet-multi-cand-train --cfg comet_multi_cand/configs/experimental/model_multicand_ref_1t00s.yaml" # in training
+sbatch_gpu_bigg "train_multicand_ref_1t01s" "comet-multi-cand-train --cfg comet_multi_cand/configs/experimental/model_multicand_ref_1t01s.yaml" # in training
+sbatch_gpu_bigg "train_multicand_ref_1t10s" "comet-multi-cand-train --cfg comet_multi_cand/configs/experimental/model_multicand_ref_1t10s.yaml" # in training

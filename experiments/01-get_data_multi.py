@@ -25,6 +25,7 @@ def process_data(data):
                 "langs": line["langs"],
                 "src": line["src"],
                 "mt": line["tgt"][sys],
+                "ref": line["ref"],
                 "score": line["scores"][sys]["human"],
                 **{
                     f"mt{i+2}": mt for i, (mt, _) in enumerate(tgts)
@@ -54,7 +55,8 @@ if __name__ == "__main__":
             writer = csv.DictWriter(
                 f, fieldnames=[
                     "langs",
-                    "src", "mt", "score",
+                    "src", "ref",
+                    "mt", "score",
                     "mt2", "score2",
                     "mt3", "score3",
                     "mt4", "score4",
