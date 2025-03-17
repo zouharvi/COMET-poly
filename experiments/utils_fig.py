@@ -16,8 +16,9 @@ mpl.rcParams["legend.fontsize"] = 9
 mpl.rcParams["legend.borderpad"] = 0.1
 
 
-def turn_off_spines(which=['top', 'right']):
+def turn_off_spines(which=['top', 'right'], ax=None):
     import matplotlib.pyplot as plt
 
-    ax = plt.gca()
+    if ax is None:
+        ax = plt.gca()
     ax.spines[which].set_visible(False)
