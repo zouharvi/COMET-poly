@@ -24,9 +24,9 @@ multicand_metric:
       - 2048
       - 1024
     activations: Tanh
-    additional_translation_in: [True, True, False, False, False]
+    additional_translation_in: [True, True, True, True, True]
     additional_score_in: [False, False, False, False, False]
-    additional_score_out: [False, False, False, False, False]
+    additional_score_out: [True, True, True, True, True]
     
 trainer: ../trainer_half.yaml
 early_stopping: ../early_stopping.yaml
