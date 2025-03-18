@@ -18,7 +18,8 @@ sbatch_gpu_short "eval_da_1t10s_da" "python3 experiments/13-eval_da_test.py ligh
 sbatch_gpu_short "eval_da_1t01s_da" "python3 experiments/13-eval_da_test.py lightning_logs/multicand_1t01s/checkpoints/epoch\=4*"
 sbatch_gpu_short "eval_da_2t02s_da" "python3 experiments/13-eval_da_test.py lightning_logs/multicand_2t02s/checkpoints/epoch\=4*"
 sbatch_gpu_short "eval_da_2t20s_da" "python3 experiments/13-eval_da_test.py lightning_logs/multicand_2t20s/checkpoints/epoch\=4*"
-sbatch_gpu_short "eval_da_2t00s_da" "python3 experiments/13-eval_da_test.py lightning_logs/multicand_2t00s/checkpoints/epoch\=4*" # running
+sbatch_gpu_short "eval_da_2t00s_da" "python3 experiments/13-eval_da_test.py lightning_logs/multicand_2t00s/checkpoints/epoch\=4*"
+sbatch_gpu_short "eval_da_ref_0t00s_da" "python3 experiments/13-eval_da_test.py lightning_logs/multicand_ref_0t00s/checkpoints/epoch\=4*" # running
 
 # da (closest)
 sbatch_gpu_short "eval_da_0t00s_da_sim" "python3 experiments/13-eval_da_test.py --sim lightning_logs/multicand_0t00s/checkpoints/epoch\=4*"
