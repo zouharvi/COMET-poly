@@ -36,6 +36,7 @@ def process_data(data):
                 "langs": line["langs"],
                 "src": line["src"],
                 "mt": line["tgt"][sys],
+                "ref": line["ref"],
                 "score": line["scores"][sys]["human"],
                 "tgts": tgts,
             })
@@ -79,7 +80,8 @@ if __name__ == "__main__":
             writer = csv.DictWriter(
                 f, fieldnames=[
                     "langs",
-                    "src", "mt", "score",
+                    "src", "ref",
+                    "mt", "score",
                     "mt2", "score2", "sim2",
                     "mt3", "score3", "sim3",
                     "mt4", "score4", "sim4",
