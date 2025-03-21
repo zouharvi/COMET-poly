@@ -8,8 +8,8 @@ from comet_multi_cand.models.regression.regression_metric import RegressionMetri
 from comet_multi_cand.models.utils import Prediction, Target
 from comet_multi_cand.modules import FeedForward
 
-class MultiCandMetric(RegressionMetric):
-    """MultiCandMetric:
+class LaplacianMetric(RegressionMetric):
+    """LaplacianMetric:
 
     Args:
         nr_frozen_epochs (Union[float, int]): Number of epochs (% of epoch) that the
@@ -72,10 +72,8 @@ class MultiCandMetric(RegressionMetric):
         final_activation: Optional[str] = None,
         load_pretrained_weights: bool = True,
         local_files_only: bool = False,
-        additional_score_in: List[bool] = [False, False, False, False, False],
-        additional_score_out: List[bool] = [False, False, False, False, False],
-        additional_translation_in: List[bool] = [False, False, False, False, False],
-        use_ref: bool = False
+        use_ref: bool = False,
+        laplacian_scale: float = None,
     ) -> None:
         super(RegressionMetric, self).__init__(
             nr_frozen_epochs=nr_frozen_epochs,
@@ -100,19 +98,20 @@ class MultiCandMetric(RegressionMetric):
             load_pretrained_weights=load_pretrained_weights,
             local_files_only=local_files_only,
         )
-        self.additional_score_in = additional_score_in
-        self.additional_score_out = additional_score_out
-        self.additional_translation_in = additional_translation_in
         self.use_ref = use_ref
+
+        assert laplacian_scale is not None, "laplacian_scale must be provided."
+
+        self.laplacian_scale = laplacian_scale
 
         self.save_hyperparameters()
         self.estimator = FeedForward(
-            in_dim=self.encoder.output_units * (4 + (5 + 2 * use_ref) * sum(additional_translation_in) + 3 * use_ref) + 1 * (sum(additional_score_in)),
+            in_dim=self.encoder.output_units * (4 + 3 * use_ref),
             hidden_sizes=hidden_sizes,
             activations=activations,
             dropout=dropout,
             final_activation=final_activation,
-            out_dim=1 + sum(additional_score_out),
+            out_dim=1,
         )
 
     def requires_references(self) -> bool:
@@ -145,33 +144,18 @@ class MultiCandMetric(RegressionMetric):
         src_inputs = {"src_" + k: v for k, v in src_inputs.items()}
         mt1_inputs = {"mt1_" + k: v for k, v in mt1_inputs.items()}
 
-        # embed additional translations
-        additional_translation_in = []
-        for i, flag in enumerate(self.additional_translation_in):
-            if not flag:
-                continue
-            obj = self.encoder.prepare_sample(inputs[f"mt{i+2}"])
-            additional_translation_in.append((obj["input_ids"], obj["attention_mask"]))
-
-        additional_score_in = torch.tensor([
-            # start at i=0 which corresponds to score2
-            [float(s[f"score{i+2}"]) for i, flag in enumerate(self.additional_score_in) if flag]
-            for s in sample
-        ], dtype=torch.float)
-
         if self.use_ref:
             ref_inputs = {"ref_" + k: v for k, v in self.encoder.prepare_sample(inputs["ref"]).items()}
         else:
             ref_inputs = {}
 
-        model_inputs = {**src_inputs, **mt1_inputs, "additional_translation_in": additional_translation_in, "additional_score_in": additional_score_in, **ref_inputs}
+        model_inputs = {**src_inputs, **mt1_inputs, **ref_inputs}
 
         if stage == "predict":
             return model_inputs
         
         targets = Target(score=torch.tensor([
-            [float(s["score"])] + [float(s[f"score{i+2}"]) for i, flag in enumerate(self.additional_score_out) if flag]
-            for s in sample
+            [float(s["score"])] for s in sample
         ], dtype=torch.float))
 
         return model_inputs, targets
@@ -187,10 +171,8 @@ class MultiCandMetric(RegressionMetric):
         self,
         src_input_ids: torch.tensor,
         src_attention_mask: torch.tensor,
-        mt1_input_ids: torch.tensor,
-        mt1_attention_mask: torch.tensor,
-        additional_translation_in: List[Tuple[torch.tensor, torch.tensor]],
-        additional_score_in: torch.tensor,
+        mt_input_ids: torch.tensor,
+        mt_attention_mask: torch.tensor,
         ref_input_ids: Optional[torch.tensor] = None,
         ref_attention_mask: Optional[torch.tensor] = None,
         **kwargs
@@ -207,8 +189,7 @@ class MultiCandMetric(RegressionMetric):
             Prediction object with translation scores.
         """
         src_sentemb = self.get_sentence_embedding(src_input_ids, src_attention_mask)
-        mt1_sentemb = self.get_sentence_embedding(mt1_input_ids, mt1_attention_mask)
-        additional_sentembd = [self.get_sentence_embedding(*inp) for inp in additional_translation_in]
+        mt1_sentemb = self.get_sentence_embedding(mt_input_ids, mt_attention_mask)
 
         embedded_sequences = torch.cat(
             (
@@ -216,19 +197,6 @@ class MultiCandMetric(RegressionMetric):
                 mt1_sentemb * src_sentemb, torch.abs(mt1_sentemb - src_sentemb),
             ), dim=1
         )
-
-        # add additional translations in
-        for mtX_sentembd in additional_sentembd:
-            embedded_sequences = torch.cat(
-                (
-                    # previous
-                    embedded_sequences,
-                    mtX_sentembd,
-                    mtX_sentembd * src_sentemb, torch.abs(mtX_sentembd - src_sentemb),
-                    mtX_sentembd * mt1_sentemb, torch.abs(mtX_sentembd - mt1_sentemb),
-                ), dim=1
-            )
-
 
         if self.use_ref:
             ref_sentemb = self.get_sentence_embedding(ref_input_ids, ref_attention_mask)
@@ -239,32 +207,32 @@ class MultiCandMetric(RegressionMetric):
                     ref_sentemb * mt1_sentemb, torch.abs(ref_sentemb - mt1_sentemb),
                 ), dim=1
             )
-            for mtX_sentembd in additional_sentembd:
-                embedded_sequences = torch.cat(
-                    (
-                        # previous
-                        embedded_sequences,
-                        ref_sentemb * mtX_sentembd, torch.abs(ref_sentemb - mtX_sentembd),
-                    ), dim=1
-                )
 
-        # add additional scores in
-        if sum(self.additional_score_in) > 0:
-            embedded_sequences = torch.cat(
-                (embedded_sequences, additional_score_in.view(-1, sum(self.additional_score_in))),
-                dim=1
-            )
         return Prediction(score=self.estimator(embedded_sequences))
+    
 
-
-    def estimate(
+    def compute_loss(
         self,
-        src_sentemb: torch.Tensor,
-        mt_sentemb: torch.Tensor,
-        ref_sentemb: torch.Tensor,
-    ) -> Prediction:
-        raise NotImplementedError("Estimate method not implemented for MultiCandMetric. Intentionally not inheriting from RegressionMetric.")
+        prediction: Prediction,
+        target: Target,
+        prediction_laplacian: Prediction,
+        sim_laplacian: torch.Tensor,
+    ) -> torch.Tensor:
+        """Computes Loss value between a batch Prediction and respective Target."""
+        # TODO: make sure that the calling function is computing prediction_laplacian and sim_laplacian
 
+        extra_loss = 0
+        if self.laplacian_scale is not None:
+            # assert len(prediction_laplacian) == sim_laplacian.shape[0] and sim_laplacian.shape[0] == sim_laplacian.shape[1]
+            # compute pariwise prediction_laplacian similarity 
+
+            # TODO: the below is incorrect because first dimension is batch?
+            score_laplacian = (prediction_laplacian.unsqueeze(1).score - prediction_laplacian.score.unsqueeze(0)) ** 2
+            extra_loss = self.laplacian_scale * torch.mean(score_laplacian * sim_laplacian)
+            
+            pass
+        
+        return self.loss(prediction.score, target.score) + extra_loss
 
     def read_training_data(self, path: str) -> List[dict]:
         """Method that reads the training data (a csv file) and returns a list of
