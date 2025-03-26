@@ -25,6 +25,7 @@ The scripts for training new COMET models and running the experiments in the pap
 First, start by fetching the data:
 ```
 python3 experiments/01-get_data_multi.py
+python3 experiments/01-get_data_multi.py --sort-by-sim # (optional, takes a long time)
 ```
 
 TODO
