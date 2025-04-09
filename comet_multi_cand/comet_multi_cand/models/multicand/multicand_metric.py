@@ -75,6 +75,7 @@ class MultiCandMetric(RegressionMetric):
         additional_score_in: List[bool] = [False, False, False, False, False],
         additional_score_out: List[bool] = [False, False, False, False, False],
         additional_translation_in: List[bool] = [False, False, False, False, False],
+        backprop_additional_translation: bool = True,
         use_ref: bool = False
     ) -> None:
         super(RegressionMetric, self).__init__(
@@ -104,6 +105,7 @@ class MultiCandMetric(RegressionMetric):
         self.additional_score_out = additional_score_out
         self.additional_translation_in = additional_translation_in
         self.use_ref = use_ref
+        self.backprop_additional_translation = backprop_additional_translation
 
         self.save_hyperparameters()
         self.estimator = FeedForward(
@@ -208,7 +210,11 @@ class MultiCandMetric(RegressionMetric):
         """
         src_sentemb = self.get_sentence_embedding(src_input_ids, src_attention_mask)
         mt1_sentemb = self.get_sentence_embedding(mt1_input_ids, mt1_attention_mask)
-        additional_sentembd = [self.get_sentence_embedding(*inp) for inp in additional_translation_in]
+        if self.backprop_additional_translation:
+            additional_sentembd = [self.get_sentence_embedding(*inp) for inp in additional_translation_in]
+        else:
+            with torch.no_grad():
+                additional_sentembd = [self.get_sentence_embedding(*inp) for inp in additional_translation_in]
 
         embedded_sequences = torch.cat(
             (

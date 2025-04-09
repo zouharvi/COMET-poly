@@ -8,4 +8,5 @@ rsync -azP --filter=":- .gitignore" --exclude .git/ . euler:/cluster/work/sachan
 # send data
 # rsync -azP data/csv/* euler:/cluster/work/sachan/vilem/COMET-multi-cand/data/csv/
 
-scp euler:/cluster/work/sachan/vilem/COMET-multi-cand/logs/output_simple_0t00s.out computed/output_simple_0t00s.out
+# scp euler:/cluster/work/sachan/vilem/COMET-multi-cand/logs/output_simple_0t00s.out computed/output_simple_0t00s.out
+# scp euler:/cluster/work/sachan/vilem/COMET-multi-cand/logs/output_all_0t00s.out computed/output_all_0t00s.out
