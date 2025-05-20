@@ -1,5 +1,6 @@
 import numpy as np
 import sentence_transformers.util
+import torch
 import tqdm
 import utils
 import csv
@@ -7,6 +8,7 @@ import random
 import os
 import sentence_transformers
 import argparse
+from annoy import AnnoyIndex
 
 args = argparse.ArgumentParser()
 args.add_argument("--embd-key", default="mt", choices=["mt", "src"])
@@ -14,21 +16,16 @@ args = args.parse_args()
 
 model = sentence_transformers.SentenceTransformer("all-MiniLM-L12-v2")
 
-def process_data(data, data_retrieval):
-    print("Computing cosine similarity")
-    sims_all = sentence_transformers.util.cos_sim(
-        np.array([line["embd"] for line in data]),
-        np.array([line["embd"] for line in data_retrieval])
-    )
-    
+def process_data(data, data_retrieval, data_retrieval_index: AnnoyIndex):
     print("Finding nearest neighbors")
-    for line, line_sim in tqdm.tqdm(zip(data, sims_all)):
-        # find the most similar line that is not close to 1 (likely same text)
-        line_sim[line_sim >= 0.9999] = -999
-        retrieval_idx = line_sim.argsort(descending=True)[:5]
+    for line in tqdm.tqdm(data):
+        # we must select much more because we are filtering it later on
+        idx, dists = data_retrieval_index.get_nns_by_vector(line["embd"], n=1000, include_distances=True)
+        idx = [i for i, d in zip(idx, dists) if d < 0.999999][:5]
+
         tgts = [
-            (data_retrieval[idx]["src"], data_retrieval[idx]["mt"], data_retrieval[idx]["score"])
-            for idx in retrieval_idx
+            (data_retrieval[i]["src"], data_retrieval[i]["mt"], data_retrieval[i]["score"])
+            for i in idx
         ][:5]
         line["src2"], line["mt2"], line["score2"] = tgts[0]
         line["src3"], line["mt3"], line["score3"] = tgts[1]
@@ -41,7 +38,7 @@ def process_data(data, data_retrieval):
 def add_embd(data):
     print("Computing embeddings")
     txt_all = list({line[args.embd_key] for line in data})
-    txt_to_embd = {tgt: tgt_e for tgt, tgt_e in zip(txt_all, model.encode(txt_all, show_progress_bar=True, batch_size=256))}
+    txt_to_embd = {tgt: tgt_e for tgt, tgt_e in zip(txt_all, model.encode(txt_all, show_progress_bar=True, batch_size=256, normalize_embeddings=True))}
 
     for line in data:
         line["embd"] = txt_to_embd[line[args.embd_key]]
@@ -70,8 +67,15 @@ data_test = data_flatten(data_test)
 add_embd(data_train)
 add_embd(data_test)
 
-data_train = process_data(data_train, data_train)
-data_test = process_data(data_test, data_train)
+print("Populating Annoy")
+data_train_index = AnnoyIndex(len(data_train[0]["embd"]), 'dot')
+for i, line in enumerate(data_train):
+    data_train_index.add_item(i, line["embd"])
+print("Buliding Annoy")
+data_train_index.build(10)
+
+data_train = process_data(data_train, data_train, data_train_index)
+data_test = process_data(data_test, data_train, data_train_index)
 
 # use 1k samples for dev
 data_dev_i = random.Random(0).sample(list(range(len(data_train))), k=1_000)
@@ -107,6 +111,23 @@ if __name__ == "__main__":
     write_data(data_dev, "dev")
 
 """
-sbatch_gpu_big_short "get_data_retrieval_src" "python3 experiments/01-get_data_retrieval.py --embd-key src"
-sbatch_gpu_big_short "get_data_retrieval_mt" "python3 experiments/01-get_data_retrieval.py --embd-key mt"
+function sbatch_gpu_short() {
+    JOB_NAME=$1;
+    JOB_WRAP=$2;
+    mkdir -p logs
+
+    sbatch \
+        -J $JOB_NAME --output=logs/%x.out --error=logs/%x.err \
+        --gpus=1 --gres=gpumem:22g \
+        --mail-type END \
+        --mail-user vilem.zouhar@gmail.com \
+        --ntasks-per-node=1 \
+        --cpus-per-task=12 \
+        --mem-per-cpu=14G --time=0-4 \
+        --wrap="$JOB_WRAP";
+}
+
+
+sbatch_gpu_short "get_data_retrieval_src" "python3 experiments/01-get_data_retrieval.py --embd-key src"
+sbatch_gpu_short "get_data_retrieval_mt" "python3 experiments/01-get_data_retrieval.py --embd-key mt"
 """
