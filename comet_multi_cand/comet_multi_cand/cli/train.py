@@ -44,6 +44,7 @@ from comet_multi_cand.models import (
     PairwiseRankingMetric, RankingMetric, ReferencelessRegression,
     RegressionMetric, UnifiedMetric,
     MultiCandMetric, MultitaskRankingMetric,
+    RetrievalMetric,
 )
 
 torch.set_float32_matmul_precision('high')
@@ -65,6 +66,7 @@ def read_arguments() -> ArgumentParser:
         ReferencelessRegression, "referenceless_regression_metric"
     )
     parser.add_subclass_arguments(MultiCandMetric, "multicand_metric")
+    parser.add_subclass_arguments(RetrievalMetric, "retrieval_metric")
     parser.add_subclass_arguments(MultitaskRankingMetric, "multitask_ranking_metric")
     parser.add_subclass_arguments(PairwiseRankingMetric, "pairwise_ranking_metric")
     parser.add_subclass_arguments(RankingMetric, "ranking_metric")
@@ -186,21 +188,21 @@ def initialize_model(configs):
             )
         else:
             model = MultiCandMetric(**namespace_to_dict(configs.multicand_metric.init_args))
-    elif configs.pairwise_referenceless_metric is not None:
+    elif configs.retrieval_metric is not None:
         print(
             json.dumps(
-                configs.pairwise_referenceless_metric.init_args, indent=4, default=lambda x: x.__dict__
+                configs.retrieval_metric.init_args, indent=4, default=lambda x: x.__dict__
             )
         )
         if configs.load_from_checkpoint is not None:
             logger.info(f"Loading weights from {configs.load_from_checkpoint}.")
-            model = PairwiseReferencelessMetric.load_from_checkpoint(
+            model = RetrievalMetric.load_from_checkpoint(
                 checkpoint_path=configs.load_from_checkpoint,
                 strict=configs.strict_load,
-                **namespace_to_dict(configs.pairwise_referenceless_metric.init_args),
+                **namespace_to_dict(configs.retrieval_metric.init_args),
             )
         else:
-            model = PairwiseReferencelessMetric(**namespace_to_dict(configs.pairwise_referenceless_metric.init_args))
+            model = RetrievalMetric(**namespace_to_dict(configs.retrieval_metric.init_args))
     elif configs.multitask_ranking_metric is not None:
         print(
             json.dumps(

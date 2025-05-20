@@ -27,3 +27,7 @@ sbatch_gpu_bigg "train_multicand_ref_0t00s" "comet-multi-cand-train --cfg comet_
 sbatch_gpu_bigg "train_multicand_ref_1t00s" "comet-multi-cand-train --cfg comet_multi_cand/configs/experimental/model_multicand_ref_1t00s.yaml"
 sbatch_gpu_bigg "train_multicand_ref_1t01s" "comet-multi-cand-train --cfg comet_multi_cand/configs/experimental/model_multicand_ref_1t01s.yaml"
 sbatch_gpu_bigg "train_multicand_ref_1t10s" "comet-multi-cand-train --cfg comet_multi_cand/configs/experimental/model_multicand_ref_1t10s.yaml"
+
+# retrieval
+sbatch_gpu_bigg "train_retrieval_1t_src" "comet-multi-cand-train --cfg comet_multi_cand/configs/experimental/model_retrieval_1t_src.yaml"
+sbatch_gpu_bigg "train_retrieval_1t_mt"  "comet-multi-cand-train --cfg comet_multi_cand/configs/experimental/model_retrieval_1t_mt.yaml"
