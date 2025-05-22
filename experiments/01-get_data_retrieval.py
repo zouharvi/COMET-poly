@@ -11,7 +11,7 @@ import argparse
 from annoy import AnnoyIndex
 
 args = argparse.ArgumentParser()
-args.add_argument("--embd-key", default="mt", choices=["mt", "src"])
+args.add_argument("--embd-key", default="mt", choices=["mt", "src", "srcAmt", "srcCmt"])
 args = args.parse_args()
 
 model = sentence_transformers.SentenceTransformer("all-MiniLM-L12-v2")
@@ -19,13 +19,18 @@ model = sentence_transformers.SentenceTransformer("all-MiniLM-L12-v2")
 def process_data(data, data_retrieval, data_retrieval_index: AnnoyIndex):
     print("Finding nearest neighbors")
     for line in tqdm.tqdm(data):
-        # we must select much more because we are filtering it later on
-        idx, dists = data_retrieval_index.get_nns_by_vector(line["embd"], n=1000, include_distances=True)
-        idx = [i for i, d in zip(idx, dists) if d < 0.999999][:5]
+        # we must select much more (n) because we are filtering it later on
+        idx, dists = data_retrieval_index.get_nns_by_vector(line["embd"], n=500, include_distances=True)
 
         tgts = [
             (data_retrieval[i]["src"], data_retrieval[i]["mt"], data_retrieval[i]["score"])
             for i in idx
+        ]
+        # filter by hard match instead of inner product
+        # idx = [i for i, d in zip(idx, dists) if d < 0.999999][:5]
+        tgts = [
+            x for x in tgts
+            if (x[0], x[1]) != (line["src"], line["mt"])
         ][:5]
         line["src2"], line["mt2"], line["score2"] = tgts[0]
         line["src3"], line["mt3"], line["score3"] = tgts[1]
@@ -37,11 +42,55 @@ def process_data(data, data_retrieval, data_retrieval_index: AnnoyIndex):
 
 def add_embd(data):
     print("Computing embeddings")
-    txt_all = list({line[args.embd_key] for line in data})
-    txt_to_embd = {tgt: tgt_e for tgt, tgt_e in zip(txt_all, model.encode(txt_all, show_progress_bar=True, batch_size=256, normalize_embeddings=True))}
 
+    if args.embd_key == "mt":
+        tgt_all = list({line["mt"] for line in data})
+        tgt_to_embd = {
+            tgt: tgt_e
+            for tgt, tgt_e in zip(tgt_all, model.encode(tgt_all, show_progress_bar=True, batch_size=256, normalize_embeddings=True))
+        }
+        for line in data:
+            line["embd"] = tgt_to_embd[line["mt"]]
+    elif args.embd_key == "src":
+        src_all = list({line["src"] for line in data})
+        src_to_embd = {
+            tgt: tgt_e
+            for tgt, tgt_e in zip(src_all, model.encode(src_all, show_progress_bar=True, batch_size=256, normalize_embeddings=True))
+        }
+        for line in data:
+            line["embd"] = src_to_embd[line["src"]]
+    elif args.embd_key == "srcAmt":
+        src_all = list({line["src"] for line in data})
+        tgt_all = list({line["mt"] for line in data})
+        tgt_to_embd = {
+            tgt: tgt_e
+            for tgt, tgt_e in zip(tgt_all, model.encode(tgt_all, show_progress_bar=True, batch_size=256))
+        }
+        src_to_embd = {
+            tgt: tgt_e
+            for tgt, tgt_e in zip(src_all, model.encode(src_all, show_progress_bar=True, batch_size=256))
+        }
+        for line in data:
+            line["embd"] = src_to_embd[line["src"]] + tgt_to_embd[line["mt"]]
+    elif args.embd_key == "srcCmt":
+        src_all = list({line["src"] for line in data})
+        tgt_all = list({line["mt"] for line in data})
+        tgt_to_embd = {
+            tgt: tgt_e
+            for tgt, tgt_e in zip(tgt_all, model.encode(tgt_all, show_progress_bar=True, batch_size=256))
+        }
+        src_to_embd = {
+            tgt: tgt_e
+            for tgt, tgt_e in zip(src_all, model.encode(src_all, show_progress_bar=True, batch_size=256))
+        }
+        for line in data:
+            line["embd"] = np.concatenate((src_to_embd[line["src"]], tgt_to_embd[line["mt"]]))
+    else:
+        raise ValueError("Unknown embedding key")
+    
+    # normalize embeddings
     for line in data:
-        line["embd"] = txt_to_embd[line[args.embd_key]]
+        line["embd"] = line["embd"] / np.linalg.norm(line["embd"])
 
 def data_flatten(data):
     # just flatten
@@ -72,7 +121,7 @@ data_train_index = AnnoyIndex(len(data_train[0]["embd"]), 'dot')
 for i, line in enumerate(data_train):
     data_train_index.add_item(i, line["embd"])
 print("Buliding Annoy")
-data_train_index.build(10)
+data_train_index.build(20)
 
 data_train = process_data(data_train, data_train, data_train_index)
 data_test = process_data(data_test, data_train, data_train_index)
@@ -129,5 +178,7 @@ function sbatch_gpu_short() {
 
 
 sbatch_gpu_short "get_data_retrieval_src" "python3 experiments/01-get_data_retrieval.py --embd-key src"
+sbatch_gpu_short "get_data_retrieval_srcAmt" "python3 experiments/01-get_data_retrieval.py --embd-key srcAmt"
+sbatch_gpu_short "get_data_retrieval_srcCmt" "python3 experiments/01-get_data_retrieval.py --embd-key srcCmt"
 sbatch_gpu_short "get_data_retrieval_mt" "python3 experiments/01-get_data_retrieval.py --embd-key mt"
 """
