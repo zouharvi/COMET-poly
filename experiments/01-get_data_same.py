@@ -104,3 +104,11 @@ if __name__ == "__main__":
     write_data(data_train, "train")
     write_data(data_test, "test")
     write_data(data_dev, "dev")
+
+
+
+
+"""
+python3 experiments/01-get_data_same.py
+python3 experiments/01-get_data_same.py --sort_by_sim
+"""
