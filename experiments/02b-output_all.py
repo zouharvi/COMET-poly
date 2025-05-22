@@ -9,9 +9,9 @@ args = args.parse_args()
 
 model = comet_multi_cand.load_from_checkpoint(args.model)
 if args.sim:
-    data = list(csv.DictReader(open("data/csv/test_multi_sim.csv")))
+    data = list(csv.DictReader(open("data/csv/test_same_sim.csv")))
 else:
-    data = list(csv.DictReader(open("data/csv/test_multi.csv")))
+    data = list(csv.DictReader(open("data/csv/test_same_rand.csv")))
 scores_pred_t1 = [x[0] for x in model.predict(data, batch_size=64).scores]
 scores_pred_t2 = [x[0] for x in model.predict([{"src": l["src"], "mt": l["mt2"]} for l in data], batch_size=64).scores]
 scores_pred_t3 = [x[0] for x in model.predict([{"src": l["src"], "mt": l["mt3"]} for l in data], batch_size=64).scores]

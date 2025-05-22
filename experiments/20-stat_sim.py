@@ -4,7 +4,7 @@ import collections
 import numpy as np
 import utils
 
-data = list(csv.DictReader(open("data/csv/test_multi.csv")))
+data = list(csv.DictReader(open("data/csv/test_same_rand.csv")))
 
 stats = collections.Counter()
 for line in data:

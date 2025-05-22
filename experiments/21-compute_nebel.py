@@ -10,7 +10,7 @@ args.add_argument("t", type=int)
 args = args.parse_args()
 
 model = comet_multi_cand.load_from_checkpoint(args.model)
-data = list(csv.DictReader(open("data/csv/test_multi.csv")))
+data = list(csv.DictReader(open("data/csv/test_same_rand.csv")))
 for line in data:
     line["mt2"], line["score2"] = line[f"mt{args.t}"], line[f"score{args.t}"]
 

@@ -17,9 +17,9 @@ multicand_metric:
     dropout: 0.1
     batch_size: 8
     train_data: 
-      - data/csv/train_multi.csv
+      - data/csv/train_same_rand.csv
     validation_data: 
-      - data/csv/dev_multi.csv
+      - data/csv/dev_same_rand.csv
     hidden_sizes:
       - 2048
       - 1024

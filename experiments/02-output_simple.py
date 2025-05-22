@@ -9,9 +9,9 @@ args = args.parse_args()
 
 model = comet_multi_cand.load_from_checkpoint(args.model)
 if args.sim:
-    data = list(csv.DictReader(open("data/csv/test_multi_sim.csv")))
+    data = list(csv.DictReader(open("data/csv/test_same_sim.csv")))
 else:
-    data = list(csv.DictReader(open("data/csv/test_multi.csv")))
+    data = list(csv.DictReader(open("data/csv/test_same_rand.csv")))
 scores_pred = model.predict(data, batch_size=64).scores
 # assume the output is always a list the size of number of additional_score_out+1
 scores_pred = [x[0] for x in scores_pred]

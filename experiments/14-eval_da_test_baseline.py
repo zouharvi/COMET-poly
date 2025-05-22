@@ -4,8 +4,8 @@ import csv
 import numpy as np
 import utils
 
-data_multi_sim = list(csv.DictReader(open("data/csv/test_multi_sim.csv")))
-data_multi_ran = list(csv.DictReader(open("data/csv/test_multi.csv")))
+data_multi_sim = list(csv.DictReader(open("data/csv/test_same_sim.csv")))
+data_multi_ran = list(csv.DictReader(open("data/csv/test_same_rand.csv")))
 
 score_avg = np.average([float(x["score"]) for x in data_multi_sim])
 

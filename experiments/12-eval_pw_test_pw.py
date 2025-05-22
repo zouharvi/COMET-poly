@@ -9,7 +9,7 @@ args.add_argument("model")
 args = args.parse_args()
 
 model = comet_multi_cand.load_from_checkpoint(args.model)
-data = list(csv.DictReader(open("data/csv/test_multi.csv")))
+data = list(csv.DictReader(open("data/csv/test_same_rand.csv")))
 # take only the data where the difference is at least 10
 data = [
     x for x in data
