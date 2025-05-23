@@ -22,13 +22,14 @@ res_pearson, res_kendall, res_errmean = utils.eval_da_per_lang(scores_pred, data
 print(json.dumps({"pearson": res_pearson, "kendall": res_kendall, "meanerr": res_errmean, "t": args.t, "model": args.model}))
 
 """
-sbatch_gpu_short "nebel_0t00s_t2" "python3 experiments/21-compute_nebel.py lightning_logs/multicand_0t00s/checkpoints/epoch\=4* 2"
+sbatch_gpu_short "mazurek_0t00s_t2" "python3 experiments/21-compute_mazurek.py lightning_logs/multicand_0t00s/checkpoints/epoch\=4* 2"
 for t in 2 3 4 5 6; do
-    sbatch_gpu_short "nebel_1t00s_t${t}" "python3 experiments/21-compute_nebel.py lightning_logs/multicand_1t00s/checkpoints/epoch\=4* ${t}"
-    sbatch_gpu_short "nebel_1t10s_t${t}" "python3 experiments/21-compute_nebel.py lightning_logs/multicand_1t10s/checkpoints/epoch\=4* ${t}"
-    sbatch_gpu_short "nebel_1t01s_t${t}" "python3 experiments/21-compute_nebel.py lightning_logs/multicand_1t01s/checkpoints/epoch\=4* ${t}"
+    sbatch_gpu_short "mazurek_1t00s_t${t}" "python3 experiments/21-compute_mazurek.py lightning_logs/multicand_1t00s/checkpoints/epoch\=4* ${t}"
+    sbatch_gpu_short "mazurek_1t10s_t${t}" "python3 experiments/21-compute_mazurek.py lightning_logs/multicand_1t10s/checkpoints/epoch\=4* ${t}"
+    sbatch_gpu_short "mazurek_1t01s_t${t}" "python3 experiments/21-compute_mazurek.py lightning_logs/multicand_1t01s/checkpoints/epoch\=4* ${t}"
 done;
 
-cat logs/nebel_*.out > logs/nebel.out
-scp euler:/cluster/work/sachan/vilem/COMET-multi-cand/logs/nebel.out computed/nebel.out
+# previously this experiment was called "nebel"
+cat logs/nebel_*.out > logs/mazurek.out
+scp euler:/cluster/work/sachan/vilem/COMET-multi-cand/logs/mazurek.out computed/mazurek.out
 """
