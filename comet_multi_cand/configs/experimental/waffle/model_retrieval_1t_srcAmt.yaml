@@ -26,6 +26,6 @@ retrieval_metric:
     activations: Tanh
     additional_translation_in: [True, False, False, False, False]
     
-trainer: ../trainer.yaml
-early_stopping: ../early_stopping.yaml
-model_checkpoint: ../model_checkpoint.yaml
+trainer: ../../trainer.yaml
+early_stopping: ../../early_stopping.yaml
+model_checkpoint: ../../model_checkpoint.yaml

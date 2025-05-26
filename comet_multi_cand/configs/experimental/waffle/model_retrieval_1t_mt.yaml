@@ -17,15 +17,15 @@ retrieval_metric:
     dropout: 0.1
     batch_size: 16
     train_data: 
-      - data/csv/train_retrieval_minilm_11_trg.csv
+      - data/csv/train_retrieval_minilm_11_mt.csv
     validation_data: 
-      - data/csv/dev_retrieval_minilm_11_trg.csv
+      - data/csv/dev_retrieval_minilm_11_mt.csv
     hidden_sizes:
       - 2048
       - 1024
     activations: Tanh
     additional_translation_in: [True, False, False, False, False]
     
-trainer: ../trainer.yaml
-early_stopping: ../early_stopping.yaml
-model_checkpoint: ../model_checkpoint.yaml
+trainer: ../../trainer.yaml
+early_stopping: ../../early_stopping.yaml
+model_checkpoint: ../../model_checkpoint.yaml
