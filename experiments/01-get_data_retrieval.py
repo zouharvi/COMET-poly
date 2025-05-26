@@ -1,3 +1,4 @@
+from typing import List, Tuple
 import numpy as np
 import tqdm
 import utils
@@ -10,52 +11,54 @@ from annoy import AnnoyIndex
 args = argparse.ArgumentParser()
 args.add_argument("--embd-key", default="mt", choices=["mt", "src", "srcAmt", "srcCmt"])
 args.add_argument("--embd-model", default="minilm", choices=["minilm", "xlmr", "comet"])
-args.add_argument("--max-sim", choices=["11", "09", "08", "07", "06"], default="11")
+args.add_argument("--max-sim", choices=["11", "07", "05"], default="11")
 args = args.parse_args()
 
 max_sim = {
     # no similarity filtering because max is 1.0
     "11": 1.1,
-    "09": 0.9,
-    "08": 0.8,
     "07": 0.7,
-    "06": 0.6,
+    "05": 0.5,
 }[args.max_sim]
 
 R_FALLBACK = random.Random(0)
 
-def process_data(data, data_retrieval, data_retrieval_index: AnnoyIndex, prevent_hardmatch=False):
+def process_data(data, data_retrieval, data_retrieval_index: AnnoyIndex, prevent_hardmatch=False) -> Tuple[List[dict], List[List[float]]]:
     print("Finding nearest neighbors")
+    data_sim = []
     for line in tqdm.tqdm(data):
         # select increasingly large neighbours because we filter later on
         for n in [50, 100, 500, 1000, 5000]:
             idx, dists = data_retrieval_index.get_nns_by_vector(line["embd"], n=n, include_distances=True)
-            idx = [i for i, d in zip(idx, dists) if d <= max_sim][:5]
+            idx = [(i, d) for i, d in zip(idx, dists) if d <= max_sim or not prevent_hardmatch]
             tgts = [
-                (data_retrieval[i]["src"], data_retrieval[i]["mt"], data_retrieval[i]["score"])
-                for i in idx
+                (data_retrieval[i]["src"], data_retrieval[i]["mt"], data_retrieval[i]["score"], d)
+                for i, d in idx
             ]
             if prevent_hardmatch:
                 tgts = [
                     x for x in tgts
-                    if (x[0], x[1]) != (line["src"], line["mt"])
+                    if x[0] != line["src"] and x[1] != line["mt"]
                 ]
+            tgts = tgts[:5]
             if len(tgts) == 5:
                 break
         else:
             # just take random examples at this point
             tgts += [
-                (line["src"], line["mt"], line["score"])
+                (line["src"], line["mt"], line["score"], None)
                 for line in R_FALLBACK.sample(data_retrieval, 5-len(tgts))
             ]
 
-        line["src2"], line["mt2"], line["score2"] = tgts[0]
-        line["src3"], line["mt3"], line["score3"] = tgts[1]
-        line["src4"], line["mt4"], line["score4"] = tgts[2]
-        line["src5"], line["mt5"], line["score5"] = tgts[3]
-        line["src6"], line["mt6"], line["score6"] = tgts[4]
+        line["src2"], line["mt2"], line["score2"], sim2 = tgts[0]
+        line["src3"], line["mt3"], line["score3"], sim3 = tgts[1]
+        line["src4"], line["mt4"], line["score4"], sim4 = tgts[2]
+        line["src5"], line["mt5"], line["score5"], sim5 = tgts[3]
+        line["src6"], line["mt6"], line["score6"], sim6 = tgts[4]
+
+        data_sim.append([sim2, sim3, sim4, sim5, sim6])
     
-    return data
+    return data, data_sim
 
 def encode_txts(txts):
 
@@ -152,45 +155,57 @@ for i, line in enumerate(data_train):
 print("Buliding Annoy")
 data_train_index.build(50)
 
-data_train = process_data(data_train, data_train, data_train_index, prevent_hardmatch=True)
+data_train, sim_train = process_data(data_train, data_train, data_train_index, prevent_hardmatch=True)
 # for test, we don't mind at all if we retrieve the same translation
-data_test = process_data(data_test, data_train, data_train_index, prevent_hardmatch=False)
+data_test, sim_test = process_data(data_test, data_train, data_train_index, prevent_hardmatch=False)
 
 # use 1k samples for dev
 data_dev_i = random.Random(0).sample(list(range(len(data_train))), k=1_000)
 data_dev = [data_train[i] for i in data_dev_i]
+sim_dev = [sim_train[i] for i in data_dev_i]
 data_train = [data_train[i] for i in range(len(data_train)) if i not in data_dev_i]
+sim_train = [sim_train[i] for i in range(len(sim_train)) if i not in data_dev_i]
 
-if __name__ == "__main__":
-    os.makedirs("data/csv", exist_ok=True)
-    def write_data(data, split):
-        print("Writing", split, "of size", str(len(data)//1000)+"k")
-        with open(f"data/csv/{split}_retrieval_{args.embd_model}_{args.max_sim}_{args.embd_key}.csv", "w") as f:
-            writer = csv.DictWriter(
-                f, fieldnames=[
-                    "langs",
-                    "src", "ref",
-                    "mt", "score",
-                    "src2", "mt2", "score2",
-                    "src3", "mt3", "score3",
-                    "src4", "mt4", "score4",
-                    "src5", "mt5", "score5",
-                    "src6", "mt6", "score6",
-                ])
-            writer.writeheader()
+os.makedirs("data/csv", exist_ok=True)
+def write_data(data, split):
+    print("Writing", split, "of size", str(len(data)//1000)+"k")
+    with open(f"data/csv/{split}_retrieval_{args.embd_model}_{args.max_sim}_{args.embd_key}.csv", "w") as f:
+        writer = csv.DictWriter(
+            f, fieldnames=[
+                "langs",
+                "src", "ref",
+                "mt", "score",
+                "src2", "mt2", "score2",
+                "src3", "mt3", "score3",
+                "src4", "mt4", "score4",
+                "src5", "mt5", "score5",
+                "src6", "mt6", "score6",
+            ])
+        writer.writeheader()
 
-            # remove extra key
-            for line in data:
-                line.pop("embd")
-            
-            writer.writerows(data)
+        # remove extra key
+        for line in data:
+            line.pop("embd")
+        
+        writer.writerows(data)
 
-    write_data(data_train, "train")
-    write_data(data_test, "test")
-    write_data(data_dev, "dev")
+write_data(data_train, "train")
+write_data(data_test, "test")
+write_data(data_dev, "dev")
+
+
+def write_sim(data, split):
+    with open(f"computed/sim_{split}_retrieval_{args.embd_model}_{args.max_sim}_{args.embd_key}.npy", "wb") as f:
+        np.save(f, np.array(data))
+
+write_sim(sim_test, "test")
+write_sim(sim_dev, "dev")
 
 """
-python3 experiments/01-get_data_retrieval.py --embd-key src
+mkdir -p computed
+
+# for testing
+python3 experiments/01-get_data_retrieval.py --embd-key src    --embd-model minilm --max-sim 11
 python3 experiments/01-get_data_retrieval.py --embd-key srcAmt
 python3 experiments/01-get_data_retrieval.py --embd-key srcCmt
 python3 experiments/01-get_data_retrieval.py --embd-key mt
@@ -210,20 +225,15 @@ function sbatch_gpu() {
         --mail-user vilem.zouhar@gmail.com \
         --ntasks-per-node=1 \
         --cpus-per-task=12 \
-        --mem-per-cpu=14G --time=1-0 \
+        --mem-per-cpu=10G --time=1-0 \
         --wrap="$JOB_WRAP";
 }
 
+for MAXSIM in "11" "07" "05"; do
 for EMBDKEY in "src" "srcAmt" "srcCmt" "mt"; do
 for EMBDMODEL in "minilm" "xlmr" "comet"; do
-    MAXSIM="11"
     sbatch_gpu "get_data_retrieval_${EMBDMODEL}_${MAXSIM}_${EMBDKEY}" "python3 experiments/01-get_data_retrieval.py --embd-key $EMBDKEY --embd-model $EMBDMODEL --max-sim $MAXSIM"
 done;
 done;
-
-for MAXSIM in "11" "09" "08" "07" "06"; do
-    EMBDMODEl="TODO"
-    EMBDKEY="TODO"
-    sbatch_gpu "get_data_retrieval_${EMBDMODEL}_${MAXSIM}_${EMBDKEY}" "python3 experiments/01-get_data_retrieval.py --embd-key $EMBDKEY --embd-model $EMBDMODEL --max-sim $MAXSIM"
 done;
 """
