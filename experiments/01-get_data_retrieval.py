@@ -9,6 +9,7 @@ import argparse
 from annoy import AnnoyIndex
 
 args = argparse.ArgumentParser()
+args.add_argument("--data-name", default="wmt", choices=["wmt", "bio"])
 args.add_argument("--embd-key", default="mt", choices=["mt", "src", "srcAmt", "srcCmt"])
 args.add_argument("--embd-model", default="minilm", choices=["minilm", "xlmr", "comet"])
 args.add_argument("--max-sim", choices=["11", "07", "05"], default="11")
@@ -140,7 +141,7 @@ def data_flatten(data):
     return data_new
 
 
-data_train, data_test = utils.get_data()
+data_train, data_test = utils.get_data(args.data_name)
 
 data_train = data_flatten(data_train)
 data_test = data_flatten(data_test)
@@ -169,7 +170,8 @@ sim_train = [sim_train[i] for i in range(len(sim_train)) if i not in data_dev_i]
 os.makedirs("data/csv", exist_ok=True)
 def write_data(data, split):
     print("Writing", split, "of size", str(len(data)//1000)+"k")
-    with open(f"data/csv/{split}_retrieval_{args.embd_model}_{args.max_sim}_{args.embd_key}.csv", "w") as f:
+    data_name_prefix = f"{args.data_name}_" if args.data_name != "wmt" else ""
+    with open(f"data/csv/{split}_{data_name_prefix}retrieval_{args.embd_model}_{args.max_sim}_{args.embd_key}.csv", "w") as f:
         writer = csv.DictWriter(
             f, fieldnames=[
                 "langs",
@@ -195,7 +197,8 @@ write_data(data_dev, "dev")
 
 
 def write_sim(data, split):
-    with open(f"computed/sim_{split}_retrieval_{args.embd_model}_{args.max_sim}_{args.embd_key}.npy", "wb") as f:
+    data_name_prefix = f"{args.data_name}_" if args.data_name != "wmt" else ""
+    with open(f"computed/sim_{split}_{data_name_prefix}retrieval_{args.embd_model}_{args.max_sim}_{args.embd_key}.npy", "wb") as f:
         np.save(f, np.array(data))
 
 write_sim(sim_test, "test")
