@@ -8,6 +8,7 @@ import sentence_transformers
 import argparse
 
 args = argparse.ArgumentParser()
+args.add_argument("--data-name", default="wmt", choices=["wmt", "bio"]) 
 args.add_argument("--sort_by_sim", action="store_true")
 args = args.parse_args()
 
@@ -68,25 +69,28 @@ def process_data(data):
     return data_new
     
 
-data_train, data_test = utils.get_data()
+data_train, data_test = utils.get_data(data_name=args.data_name)
 data_test = process_data(data_test)
 data_train = process_data(data_train)
 
 # use 1k samples for dev
 data_dev_i = random.Random(0).sample(list(range(len(data_train))), k=1_000)
 data_dev = [data_train[i] for i in data_dev_i]
-data_train = [data_train[i] for i in range(len(data_train)) if i not in data_dev_i]
+# only filter dev for WMT where we have a lot of data
+if args.data_name == "wmt":
+    data_train = [data_train[i] for i in range(len(data_train)) if i not in data_dev_i]
 
 
 if __name__ == "__main__":
     os.makedirs("data/csv", exist_ok=True)
     def write_data(data, split):
         print("Writing", split, "of size", str(len(data)//1000)+"k")
+        data_name_prefix = f"{args.data_name}_" if args.data_name != "wmt" else ""
         if args.sort_by_sim:
-            fname = f"{split}_same_sim.csv"
+            fname = f"{split}_{data_name_prefix}same_sim.csv"
         else:
-            fname = f"{split}_same_rand.csv"
-        with open(f"data/csv/{fname}.csv", "w") as f:
+            fname = f"{split}_{data_name_prefix}same_rand.csv"
+        with open(f"data/csv/{fname}", "w") as f:
             writer = csv.DictWriter(
                 f, fieldnames=[
                     "langs",
@@ -109,6 +113,11 @@ if __name__ == "__main__":
 
 
 """
-python3 experiments/01-get_data_same.py
-python3 experiments/01-get_data_same.py --sort_by_sim
+python3 experiments/01-get_data_same.py --data-name wmt 
+python3 experiments/01-get_data_same.py --data-name wmt --sort_by_sim
+python3 experiments/01-get_data_same.py --data-name bio 
+python3 experiments/01-get_data_same.py --data-name bio --sort_by_sim
+
+sbatch_gpu "get_data_same_bio_rand" "python3 experiments/01-get_data_same.py --data-name bio"
+sbatch_gpu "get_data_same_bio_sim"  "python3 experiments/01-get_data_same.py --data-name bio --sort_by_sim"
 """

@@ -12,8 +12,8 @@ def get_data(data_name="wmt"):
         data_train = [line for data_name, data_v in data.items() for line in data_v if data_name[0] != "wmt24"]
         data_test = [line for data_name, data_v in data.items() for line in data_v if data_name[0] == "wmt24"]
     elif data_name == "bio":
-        data_train = subset2evaluate.utils.load_data_bio_mqm(split='dev', normalize=False)
-        data_test = subset2evaluate.utils.load_data_bio_mqm(split='test', normalize=False)
+        data_train = subset2evaluate.utils.load_data_biomqm(split='dev', normalize=False)
+        data_test = subset2evaluate.utils.load_data_biomqm(split='test', normalize=False)
 
         for data_name, data_v in data_train.items():
             for line in data_v:

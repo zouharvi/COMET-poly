@@ -9,7 +9,7 @@ import argparse
 from annoy import AnnoyIndex
 
 args = argparse.ArgumentParser()
-args.add_argument("--data-name", default="wmt", choices=["wmt", "bio"])
+args.add_argument("--data-name", default="wmt", choices=["wmt", "bio"]) 
 args.add_argument("--embd-key", default="mt", choices=["mt", "src", "srcAmt", "srcCmt"])
 args.add_argument("--embd-model", default="minilm", choices=["minilm", "xlmr", "comet"])
 args.add_argument("--max-sim", choices=["11", "07", "05"], default="11")
@@ -164,8 +164,10 @@ data_test, sim_test = process_data(data_test, data_train, data_train_index, prev
 data_dev_i = random.Random(0).sample(list(range(len(data_train))), k=1_000)
 data_dev = [data_train[i] for i in data_dev_i]
 sim_dev = [sim_train[i] for i in data_dev_i]
-data_train = [data_train[i] for i in range(len(data_train)) if i not in data_dev_i]
-sim_train = [sim_train[i] for i in range(len(sim_train)) if i not in data_dev_i]
+# only filter data for WMT where we have lots of data
+if args.data_name == "bio":
+    data_train = [data_train[i] for i in range(len(data_train)) if i not in data_dev_i]
+    sim_train = [sim_train[i] for i in range(len(sim_train)) if i not in data_dev_i]
 
 os.makedirs("data/csv", exist_ok=True)
 def write_data(data, split):
@@ -239,4 +241,10 @@ for EMBDMODEL in "minilm" "xlmr" "comet"; do
 done;
 done;
 done;
+
+
+EMBDMODEL="minilm"
+MAXSIM="11"
+EMBDKEY="src"
+sbatch_gpu "get_data_bio_retrieval_${EMBDMODEL}_${MAXSIM}_${EMBDKEY}" "python3 experiments/01-get_data_retrieval.py --data-name bio --embd-key $EMBDKEY --embd-model $EMBDMODEL --max-sim $MAXSIM"
 """
