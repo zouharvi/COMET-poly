@@ -1,5 +1,5 @@
-retrieval_metric:
-  class_path: comet_multi_cand.models.RetrievalMetric
+multicand_metric:
+  class_path: comet_multi_cand.models.MultiCandMetric
   init_args:
     nr_frozen_epochs: 0.3
     keep_embeddings_frozen: True
@@ -15,17 +15,19 @@ retrieval_metric:
     layer_norm: False
     loss: mse
     dropout: 0.1
-    batch_size: 8
+    batch_size: 16
     train_data: 
-      - data/csv/train_retrieval_minilm_11_src.csv
+      - data/csv/train_mix_same_sim.csv
     validation_data: 
-      - data/csv/dev_retrieval_minilm_11_src.csv
+      - data/csv/dev_mix_same_sim.csv
     hidden_sizes:
       - 2048
       - 1024
     activations: Tanh
-    additional_translation_in: [True, True, True, True, False]
+    additional_translation_in: [True, False, False, False, False]
+    additional_score_in: [False, False, False, False, False]
+    additional_score_out: [False, False, False, False, False]
     
-trainer: ../../trainer_half.yaml
+trainer: ../../trainer.yaml
 early_stopping: ../../early_stopping.yaml
 model_checkpoint: ../../model_checkpoint.yaml

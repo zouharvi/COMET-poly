@@ -15,7 +15,7 @@ retrieval_metric:
     layer_norm: False
     loss: mse
     dropout: 0.1
-    batch_size: 16
+    batch_size: 8
     train_data: 
       - data/csv/train_retrieval_minilm_11_src.csv
     validation_data: 
@@ -26,6 +26,6 @@ retrieval_metric:
     activations: Tanh
     additional_translation_in: [True, True, True, False, False]
     
-trainer: ../../trainer.yaml
+trainer: ../../trainer_half.yaml
 early_stopping: ../../early_stopping.yaml
 model_checkpoint: ../../model_checkpoint.yaml
