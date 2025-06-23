@@ -38,5 +38,5 @@ sbatch_gpu_short "eval_da_ref_1t01s_da_sim" "python3 experiments/13-eval_da_test
 sbatch_gpu_short "eval_da_ref_1t10s_da_sim" "python3 experiments/13-eval_da_test.py lightning_logs/multicand_ref_1t10s/checkpoints/epoch\=4* --data data/csv/test_same_sim.csv" 
 
 # retrieval
-sbatch_gpu_short "eval_da_retrieval_1t_src" "python3 experiments/13-eval_da_test.py lightning_logs/retrieval_1t_src/checkpoints/epoch\=4* --data data/csv/test_retrieval_src.csv"
-sbatch_gpu_short "eval_da_retrieval_1t_mt"  "python3 experiments/13-eval_da_test.py lightning_logs/retrieval_1t_mt/checkpoints/epoch\=4*  --data data/csv/test_retrieval_mt.csv"
+sbatch_gpu_short "eval_da_retrieval_1t_src" "python3 experiments/13-eval_da_test.py lightning_logs/retrieval_1t_src/checkpoints/epoch\=4* --data data/csv/test_retrieval_minilm_11_src.csv"
+sbatch_gpu_short "eval_da_retrieval_1t_mt"  "python3 experiments/13-eval_da_test.py lightning_logs/retrieval_1t_mt/checkpoints/epoch\=4*  --data data/csv/test_retrieval_minilm_11_mt.csv"
