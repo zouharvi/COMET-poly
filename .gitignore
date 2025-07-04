@@ -132,3 +132,8 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# 
+*.sh
+z_outputs/*
+z_outputs*
