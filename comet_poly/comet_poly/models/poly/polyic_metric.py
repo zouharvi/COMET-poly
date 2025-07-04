@@ -105,7 +105,7 @@ class PolyICMetric(RegressionMetric):
 
         self.save_hyperparameters()
         self.estimator = FeedForward(
-            in_dim=self.encoder.output_units * (4 + (8 + 0 * use_ref) * sum(additional_translation_in) + 3 * use_ref) + 1 * (sum(additional_translation_in)),
+            in_dim=self.encoder.output_units * (4 + (8 + 2 * use_ref) * sum(additional_translation_in) + 3 * use_ref) + 1 * (sum(additional_translation_in)),
             hidden_sizes=hidden_sizes,
             activations=activations,
             dropout=dropout,
@@ -251,7 +251,6 @@ class PolyICMetric(RegressionMetric):
 
 
         if self.use_ref:
-            raise NotImplementedError("Ref for Retrieval not implemented yet")
             ref_sentemb = self.get_sentence_embedding(ref_input_ids, ref_attention_mask)
             embedded_sequences = torch.cat(
                 (
