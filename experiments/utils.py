@@ -1,15 +1,29 @@
 # %%
 
-def get_data():
+def get_data(data_name="wmt"):
     """Returns (train, test)"""
     import subset2evaluate.utils
 
-    data = subset2evaluate.utils.load_data_wmt_all(min_items=10, normalize=False, zero_bad=False, include_ref=True)
-    for data_name, data_v in data.items():
-        for line in data_v:
-            line["langs"] = "/".join(data_name)
-    data_train = [line for data_name, data_v in data.items() for line in data_v if data_name[0] != "wmt24"]
-    data_test = [line for data_name, data_v in data.items() for line in data_v if data_name[0] == "wmt24"]
+    if data_name == "wmt":
+        data = subset2evaluate.utils.load_data_wmt_all(min_items=10, normalize=False, zero_bad=False, include_ref=True)
+        for data_name, data_v in data.items():
+            for line in data_v:
+                line["langs"] = "/".join(data_name)
+        data_train = [line for data_name, data_v in data.items() for line in data_v if data_name[0] != "wmt24"]
+        data_test = [line for data_name, data_v in data.items() for line in data_v if data_name[0] == "wmt24"]
+    elif data_name == "bio":
+        data_train = subset2evaluate.utils.load_data_biomqm(split='dev', normalize=False)
+        data_test = subset2evaluate.utils.load_data_biomqm(split='test', normalize=False)
+
+        for data_name, data_v in data_train.items():
+            for line in data_v:
+                line["langs"] = "/".join(data_name)
+        data_train = [line for data_v in data_train.values() for line in data_v]
+
+        for data_name, data_v in data_test.items():
+            for line in data_v:
+                line["langs"] = "/".join(data_name)
+        data_test = [line for data_v in data_test.values() for line in data_v]
 
     return data_train, data_test
 

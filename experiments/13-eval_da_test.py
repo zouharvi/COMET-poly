@@ -1,4 +1,4 @@
-import comet_multi_cand
+import comet_poly
 import argparse
 import csv
 import utils
@@ -11,7 +11,7 @@ args.add_argument("--output_hyp", action="store_true")
 
 args = args.parse_args()
 
-model = comet_multi_cand.load_from_checkpoint(args.model)
+model = comet_poly.load_from_checkpoint(args.model)
 data = list(csv.DictReader(open(args.data)))
 scores_pred = model.predict(data, batch_size=64).scores
 
