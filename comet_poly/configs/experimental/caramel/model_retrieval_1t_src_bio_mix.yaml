@@ -1,5 +1,5 @@
-polycand_metric:
-  class_path: comet_poly.models.PolyCandMetric
+polyic_metric:
+  class_path: comet_poly.models.PolyICMetric
   init_args:
     nr_frozen_epochs: 0.3
     keep_embeddings_frozen: True
@@ -17,17 +17,15 @@ polycand_metric:
     dropout: 0.1
     batch_size: 16
     train_data: 
-      - data/csv/train_same_rand.csv
+      - data/csv/train_mix_retrieval_minilm_11_src.csv
     validation_data: 
-      - data/csv/dev_same_rand.csv
+      - data/csv/dev_mix_retrieval_minilm_11_src.csv
     hidden_sizes:
       - 2048
       - 1024
     activations: Tanh
-    additional_translation_in: [True, True, True, True, False]
-    additional_score_in: [True, True, True, True, False]
-    additional_score_out: [False, False, False, False, False]
+    additional_translation_in: [True, False, False, False, False]
     
-trainer: ../trainer.yaml
-early_stopping: ../early_stopping.yaml
-model_checkpoint: ../model_checkpoint.yaml
+trainer: ../../trainer.yaml
+early_stopping: ../../early_stopping.yaml
+model_checkpoint: ../../model_checkpoint.yaml

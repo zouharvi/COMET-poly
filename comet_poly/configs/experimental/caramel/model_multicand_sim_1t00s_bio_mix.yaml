@@ -17,17 +17,17 @@ polycand_metric:
     dropout: 0.1
     batch_size: 16
     train_data: 
-      - data/csv/train_same_rand.csv
+      - data/csv/train_mix_same_sim.csv
     validation_data: 
-      - data/csv/dev_same_rand.csv
+      - data/csv/dev_mix_same_sim.csv
     hidden_sizes:
       - 2048
       - 1024
     activations: Tanh
-    additional_translation_in: [True, True, True, True, False]
-    additional_score_in: [True, True, True, True, False]
+    additional_translation_in: [True, False, False, False, False]
+    additional_score_in: [False, False, False, False, False]
     additional_score_out: [False, False, False, False, False]
     
-trainer: ../trainer.yaml
-early_stopping: ../early_stopping.yaml
-model_checkpoint: ../model_checkpoint.yaml
+trainer: ../../trainer.yaml
+early_stopping: ../../early_stopping.yaml
+model_checkpoint: ../../model_checkpoint.yaml

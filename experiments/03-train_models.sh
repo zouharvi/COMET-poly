@@ -31,3 +31,4 @@ sbatch_gpu_bigg "train_polycand_ref_1t10s" "comet-poly-train --cfg comet_poly/co
 # polyic
 sbatch_gpu_bigg "train_polyic_1t_src" "comet-poly-train --cfg comet_poly/configs/experimental/model_polyic_1t_src.yaml"
 sbatch_gpu_bigg "train_polyic_1t_mt"  "comet-poly-train --cfg comet_poly/configs/experimental/model_polyic_1t_mt.yaml"
+sbatch_gpu_bigg "train_polyic_1t_src_ref" "comet-poly-train --cfg comet_poly/configs/experimental/model_polyic_1t_src_ref.yaml"

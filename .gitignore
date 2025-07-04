@@ -1,3 +1,6 @@
+lightning_logs_old*
+z_outputs
+*.sh
 *.pkl
 *DS_Store
 data/
