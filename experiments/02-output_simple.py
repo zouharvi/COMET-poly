@@ -1,4 +1,4 @@
-import comet_multi_cand
+import comet_poly
 import argparse
 import csv
 
@@ -7,7 +7,7 @@ args.add_argument("--sim", action="store_true")
 args.add_argument("model")
 args = args.parse_args()
 
-model = comet_multi_cand.load_from_checkpoint(args.model)
+model = comet_poly.load_from_checkpoint(args.model)
 if args.sim:
     data = list(csv.DictReader(open("data/csv/test_same_sim.csv")))
 else:
@@ -21,5 +21,5 @@ for score in scores_pred:
     print(score)
 
 """
-sbatch_gpu_short "output_simple_0t00s" "python3 experiments/02-output_simple.py lightning_logs/multicand_0t00s/checkpoints/epoch\=4*"
+sbatch_gpu_short "output_simple_0t00s" "python3 experiments/02-output_simple.py lightning_logs/polycand_0t00s/checkpoints/epoch\=4*"
 """

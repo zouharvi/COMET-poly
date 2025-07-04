@@ -1,4 +1,4 @@
-import comet_multi_cand
+import comet_poly
 import argparse
 import csv
 import numpy as np
@@ -9,7 +9,7 @@ args = argparse.ArgumentParser()
 args.add_argument("model")
 args = args.parse_args()
 
-model = comet_multi_cand.load_from_checkpoint(args.model)
+model = comet_poly.load_from_checkpoint(args.model)
 data = list(csv.DictReader(open("data/csv/test_same_rand.csv")))
 # take only the data where the difference is at least 10
 data = [

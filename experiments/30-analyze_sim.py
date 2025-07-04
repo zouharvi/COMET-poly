@@ -1,7 +1,7 @@
 # %%
 
 """
-rsync -azP  euler:/cluster/work/sachan/vilem/COMET-multi-cand/computed/sim_*.npy computed/
+rsync -azP  euler:/cluster/work/sachan/vilem/COMET-poly/computed/sim_*.npy computed/
 """
 
 import numpy as np

@@ -1,4 +1,4 @@
-import comet_multi_cand
+import comet_poly
 import argparse
 import csv
 import utils
@@ -8,7 +8,7 @@ args.add_argument("model")
 args.add_argument("--data", default="data/csv/test_same_rand.csv")
 args = args.parse_args()
 
-model = comet_multi_cand.load_from_checkpoint(args.model)
+model = comet_poly.load_from_checkpoint(args.model)
 data = list(csv.DictReader(open(args.data)))
 scores_pred = model.predict(data, batch_size=64).scores
 # assume the output is always a list the size of number of additional_score_out+1
