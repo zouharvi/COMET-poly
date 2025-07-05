@@ -17,9 +17,9 @@ polyic_metric:
     dropout: 0.1
     batch_size: 16
     train_data: 
-      - data/csv/train_retrieval_src.csv
+      - data/csv/train_retrieval_minilm_11_src.csv
     validation_data: 
-      - data/csv/dev_retrieval_src.csv
+      - data/csv/dev_retrieval_minilm_11_src.csv
     hidden_sizes:
       - 2048
       - 1024

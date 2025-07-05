@@ -113,11 +113,8 @@ if __name__ == "__main__":
 
 
 """
-python3 experiments/01-get_data_same.py --data-name wmt 
-python3 experiments/01-get_data_same.py --data-name wmt --sort_by_sim
-python3 experiments/01-get_data_same.py --data-name bio 
-python3 experiments/01-get_data_same.py --data-name bio --sort_by_sim
-
-sbatch_gpu "get_data_same_bio_rand" "python3 experiments/01-get_data_same.py --data-name bio"
-sbatch_gpu "get_data_same_bio_sim"  "python3 experiments/01-get_data_same.py --data-name bio --sort_by_sim"
+sbatch_gpu "01-get_data_same_wmt_rand" "python3 experiments/01-get_data_same.py --data-name wmt "
+sbatch_gpu "01-get_data_same_wmt_sim" "python3 experiments/01-get_data_same.py --data-name wmt --sort_by_sim"
+sbatch_gpu "01-get_data_same_bio_rand" "python3 experiments/01-get_data_same.py --data-name bio "
+sbatch_gpu "01-get_data_same_bio_sim" "python3 experiments/01-get_data_same.py --data-name bio --sort_by_sim"
 """

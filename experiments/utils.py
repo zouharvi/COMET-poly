@@ -25,6 +25,14 @@ def get_data(data_name="wmt"):
                 line["langs"] = "/".join(data_name)
         data_test = [line for data_v in data_test.values() for line in data_v]
 
+    # make sure that MQM is 0-100
+    for line in data_train + data_test:
+        for sys in line["scores"].keys():
+            line["scores"][sys]["human"] = (
+                100 - line["scores"][sys]["human"] if line["scores"][sys]["human"] <= 0
+                else line["scores"][sys]["human"]
+            )
+
     return data_train, data_test
 
 

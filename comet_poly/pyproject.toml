@@ -40,7 +40,7 @@ transformers = "^4.17"
 pytorch-lightning = "^2.0.0"
 jsonargparse = "3.13.1"
 torch = ">=1.6.0"
-numpy = "^1.20.0"
+numpy = ">=2.0.0"
 torchmetrics = "^0.10.2"
 sacrebleu = "^2.0.0"
 scipy = "^1.5.4"
@@ -53,6 +53,8 @@ subset2evaluate = ">=1.0.8"
 sphinx-markdown-tables = "0.0.15"
 coverage = "^5.5"
 scikit-learn = "^1.0"
+annoy = "^1.17"
+tensorboard = "^2.10"
 
 [build-system]
 requires = ["poetry-core"]
