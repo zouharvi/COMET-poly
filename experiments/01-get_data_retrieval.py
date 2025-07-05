@@ -189,7 +189,8 @@ def write_data(data, split):
 
         # remove extra key
         for line in data:
-            line.pop("embd")
+            if "embd" in line:
+                line.pop("embd")
         
         writer.writerows(data)
 
@@ -237,7 +238,7 @@ function sbatch_gpu() {
 for MAXSIM in "11" "07" "05"; do
 for EMBDKEY in "src" "srcAmt" "srcCmt" "mt"; do
 for EMBDMODEL in "minilm" "xlmr" "comet"; do
-    sbatch_gpu "get_data_retrieval_${EMBDMODEL}_${MAXSIM}_${EMBDKEY}" "python3 experiments/01-get_data_retrieval.py --embd-key $EMBDKEY --embd-model $EMBDMODEL --max-sim $MAXSIM"
+    sbatch_gpu "01-get_data_retrieval_${EMBDMODEL}_${MAXSIM}_${EMBDKEY}" "python3 experiments/01-get_data_retrieval.py --embd-key $EMBDKEY --embd-model $EMBDMODEL --max-sim $MAXSIM"
 done;
 done;
 done;
@@ -246,5 +247,11 @@ done;
 EMBDMODEL="minilm"
 MAXSIM="11"
 EMBDKEY="src"
-sbatch_gpu "get_data_bio_retrieval_${EMBDMODEL}_${MAXSIM}_${EMBDKEY}" "python3 experiments/01-get_data_retrieval.py --data-name bio --embd-key $EMBDKEY --embd-model $EMBDMODEL --max-sim $MAXSIM"
+sbatch_gpu "01-get_data_retrieval_${EMBDMODEL}_${MAXSIM}_${EMBDKEY}" "python3 experiments/01-get_data_retrieval.py --embd-key $EMBDKEY --embd-model $EMBDMODEL --max-sim $MAXSIM"
+
+
+EMBDMODEL="minilm"
+MAXSIM="11"
+EMBDKEY="src"
+sbatch_gpu "01-get_data_bio_retrieval_${EMBDMODEL}_${MAXSIM}_${EMBDKEY}" "python3 experiments/01-get_data_retrieval.py --data-name bio --embd-key $EMBDKEY --embd-model $EMBDMODEL --max-sim $MAXSIM"
 """
