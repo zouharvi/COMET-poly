@@ -29,7 +29,7 @@ def get_data(data_name="wmt"):
     for line in data_train + data_test:
         for sys in line["scores"].keys():
             line["scores"][sys]["human"] = (
-                100 - line["scores"][sys]["human"] if line["scores"][sys]["human"] <= 0
+                100 + line["scores"][sys]["human"] if line["scores"][sys]["human"] <= 0
                 else line["scores"][sys]["human"]
             )
 

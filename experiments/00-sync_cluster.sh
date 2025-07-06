@@ -3,7 +3,7 @@
 rsync -azP --filter=":- .gitignore" --exclude .git/ . euler:/cluster/work/sachan/vilem/COMET-poly
 
 # copy models
-# scp -r euler:/cluster/work/sachan/vilem/COMET-poly/lightning_logs/version_19759459/ lightning_logs/version_19759459/
+# scp euler:/cluster/work/sachan/vilem/COMET-poly/lightning_logs/polycand_1t00s/checkpoints/epoch\=4-step\=21975-val_kendall\=0.530.ckpt checkpoints/model.ckpt
 
 # send data
 # rsync -azP data/csv/* euler:/cluster/work/sachan/vilem/COMET-poly/data/csv/

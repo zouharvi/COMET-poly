@@ -32,10 +32,3 @@ sbatch_gpu_bigg "train_polycand_ref_1t10s" "comet-poly-train --cfg comet_poly/co
 sbatch_gpu_bigg "train_polyic_1t_src" "comet-poly-train --cfg comet_poly/configs/experimental/model_polyic_1t_src.yaml"
 sbatch_gpu_bigg "train_polyic_1t_mt"  "comet-poly-train --cfg comet_poly/configs/experimental/model_polyic_1t_mt.yaml"
 sbatch_gpu_bigg "train_polyic_1t_src_ref" "comet-poly-train --cfg comet_poly/configs/experimental/model_polyic_1t_src_ref.yaml"
-
-# for public HF
-
-sbatch_gpu_bigg "train_poly_cand1" "comet-poly-train --cfg comet_poly/configs/experimental/model_polycand_1t00s.yaml"
-sbatch_gpu_bigg "train_poly_cand3" "comet-poly-train --cfg comet_poly/configs/experimental/model_polycand_3t00s.yaml"
-sbatch_gpu_bigg "train_poly_ic1" "comet-poly-train --cfg comet_poly/configs/experimental/model_polyic_1t_src.yaml"
-sbatch_gpu_bigg "train_poly_ic3" "comet-poly-train --cfg comet_poly/configs/experimental/model_polyic_3t_src.yaml"
