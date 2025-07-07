@@ -28,6 +28,6 @@ polycand_metric:
     additional_score_in: [False, False, False, False, False]
     additional_score_out: [False, False, False, False, False]
     
-trainer: ../trainer_half.yaml
-early_stopping: ../early_stopping.yaml
-model_checkpoint: ../model_checkpoint.yaml
+trainer: ../../trainer_half.yaml
+early_stopping: ../../early_stopping.yaml
+model_checkpoint: ../../model_checkpoint.yaml

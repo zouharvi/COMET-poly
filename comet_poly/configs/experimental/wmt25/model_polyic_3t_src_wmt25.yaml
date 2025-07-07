@@ -26,6 +26,6 @@ polyic_metric:
     activations: Tanh
     additional_translation_in: [True, True, True, False, False]
     
-trainer: ../trainer_half.yaml
-early_stopping: ../early_stopping.yaml
-model_checkpoint: ../model_checkpoint.yaml
+trainer: ../../trainer_half.yaml
+early_stopping: ../../early_stopping.yaml
+model_checkpoint: ../../model_checkpoint.yaml
