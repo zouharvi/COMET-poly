@@ -3,12 +3,20 @@
 def get_data(data_name="wmt"):
     """Returns (train, test)"""
     import subset2evaluate.utils
+    import numpy as np
 
     if data_name == "wmt":
         data = subset2evaluate.utils.load_data_wmt_all(min_items=10, normalize=False, zero_bad=False, include_ref=True)
         for data_name, data_v in data.items():
+            scores = [tgt["human"] for line in data_v for tgt in line["scores"].values()]
+            # if the average is below zero then it has to be MQM
+            is_mqm = np.average(scores) < 0
             for line in data_v:
                 line["langs"] = "/".join(data_name)
+                # normalize the score
+                if is_mqm:
+                    for sys in line["scores"].keys():
+                        line["scores"][sys]["human"] = 100 + line["scores"][sys]["human"]
         data_train = [line for data_name, data_v in data.items() for line in data_v if data_name[0] != "wmt24"]
         data_test = [line for data_name, data_v in data.items() for line in data_v if data_name[0] == "wmt24"]
     elif data_name == "bio":
@@ -24,14 +32,6 @@ def get_data(data_name="wmt"):
             for line in data_v:
                 line["langs"] = "/".join(data_name)
         data_test = [line for data_v in data_test.values() for line in data_v]
-
-    # make sure that MQM is 0-100
-    for line in data_train + data_test:
-        for sys in line["scores"].keys():
-            line["scores"][sys]["human"] = (
-                100 + line["scores"][sys]["human"] if line["scores"][sys]["human"] <= 0
-                else line["scores"][sys]["human"]
-            )
 
     return data_train, data_test
 
