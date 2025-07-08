@@ -13,8 +13,10 @@ if args.sim:
 else:
     data = list(csv.DictReader(open("data/csv/test_same_rand.csv")))
 scores_pred = model.predict(data, batch_size=64).scores
-# assume the output is always a list the size of number of additional_score_out+1
-scores_pred = [x[0] for x in scores_pred]
+
+# now reduce scores_pred for eval
+if type(scores_pred[0]) is list:
+    scores_pred = [x[0] for x in scores_pred]
 
 print("score_model")
 for score in scores_pred:

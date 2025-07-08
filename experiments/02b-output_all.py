@@ -12,12 +12,12 @@ if args.sim:
     data = list(csv.DictReader(open("data/csv/test_same_sim.csv")))
 else:
     data = list(csv.DictReader(open("data/csv/test_same_rand.csv")))
-scores_pred_t1 = [x[0] for x in model.predict(data, batch_size=64).scores]
-scores_pred_t2 = [x[0] for x in model.predict([{"src": l["src"], "mt": l["mt2"]} for l in data], batch_size=64).scores]
-scores_pred_t3 = [x[0] for x in model.predict([{"src": l["src"], "mt": l["mt3"]} for l in data], batch_size=64).scores]
-scores_pred_t4 = [x[0] for x in model.predict([{"src": l["src"], "mt": l["mt4"]} for l in data], batch_size=64).scores]
-scores_pred_t5 = [x[0] for x in model.predict([{"src": l["src"], "mt": l["mt5"]} for l in data], batch_size=64).scores]
-scores_pred_t6 = [x[0] for x in model.predict([{"src": l["src"], "mt": l["mt6"]} for l in data], batch_size=64).scores]
+scores_pred_t1 = [x[0] if type(x) is list else x for x in model.predict(data, batch_size=64).scores]
+scores_pred_t2 = [x[0] if type(x) is list else x for x in model.predict([{"src": l["src"], "mt": l["mt2"]} for l in data], batch_size=64).scores]
+scores_pred_t3 = [x[0] if type(x) is list else x for x in model.predict([{"src": l["src"], "mt": l["mt3"]} for l in data], batch_size=64).scores]
+scores_pred_t4 = [x[0] if type(x) is list else x for x in model.predict([{"src": l["src"], "mt": l["mt4"]} for l in data], batch_size=64).scores]
+scores_pred_t5 = [x[0] if type(x) is list else x for x in model.predict([{"src": l["src"], "mt": l["mt5"]} for l in data], batch_size=64).scores]
+scores_pred_t6 = [x[0] if type(x) is list else x for x in model.predict([{"src": l["src"], "mt": l["mt6"]} for l in data], batch_size=64).scores]
 
 print("score_model,score2_model,score3_model,score4_model,score5_model,score6_model")
 for score1, score2, score3, score4, score5, score6 in zip(scores_pred_t1, scores_pred_t2, scores_pred_t3, scores_pred_t4, scores_pred_t5, scores_pred_t6):

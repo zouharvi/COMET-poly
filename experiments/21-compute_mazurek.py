@@ -15,8 +15,10 @@ for line in data:
     line["mt2"], line["score2"] = line[f"mt{args.t}"], line[f"score{args.t}"]
 
 scores_pred = model.predict(data, batch_size=64).scores
-# assume the output is always a list the size of number of additional_score_out+1
-scores_pred = [x[0] for x in scores_pred]
+
+# now reduce scores_pred for eval
+if type(scores_pred[0]) is list:
+    scores_pred = [x[0] for x in scores_pred]
 
 res_pearson, res_kendall, res_errmean = utils.eval_da_per_lang(scores_pred, data)
 print(json.dumps({"pearson": res_pearson, "kendall": res_kendall, "meanerr": res_errmean, "t": args.t, "model": args.model}))

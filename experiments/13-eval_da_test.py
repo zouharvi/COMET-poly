@@ -29,8 +29,9 @@ if args.output_hyp:
 
     print("Hypthoeses stored in ", output_filename)
 
-# Now reduce scores_pred for eval
-scores_pred = [x[0] for x in scores_pred]
+# now reduce scores_pred for eval
+if type(scores_pred[0]) is list:
+    scores_pred = [x[0] for x in scores_pred]
 
 res_pearson, res_kendall, res_errmean = utils.eval_da_per_lang(scores_pred, data)
 print(f"ρ={res_pearson:.3f} τ={res_kendall:.3f} e={res_errmean:.1f}")
