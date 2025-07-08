@@ -5,27 +5,26 @@ import tqdm
 import random
 
 def retrieve_from_kb(
+    data: List[Dict],
     data_kb: List[Dict],
-    data_query: List[Dict],
     k=5,
     prevent_hardmatch=False,
+    key="src",
 ) -> List[List[Dict]]:
     """
-    Each line in data_kb and data_query should have a "src" key by which they are retrieved.
-
-    TODO: test this
+    Each line in data_kb and data_query should have a "src" key (default) by which they are retrieved.
     """
     R_FALLBACK = random.Random(0)
 
-    src_all = list({line["src"] for line in data_kb + data_query})
+    key_all = list({line[key] for line in data_kb + data})
 
     model = sentence_transformers.SentenceTransformer("all-MiniLM-L12-v2")
-    src_to_embd = {
+    key_to_embd = {
         txt: txt_e
-        for txt, txt_e in zip(src_all, model.encode(src_all, show_progress_bar=True, batch_size=256))
+        for txt, txt_e in zip(key_all, model.encode(key_all, show_progress_bar=True, batch_size=256))
     }
-    for line in data_kb + data_query:
-        line["embd"] = src_to_embd[line["src"]]
+    for line in data_kb + data:
+        line["embd"] = key_to_embd[line[key]]
 
     data_kb_index = AnnoyIndex(len(data_kb[0]["embd"]), 'dot')
     for i, line in enumerate(data_kb):
@@ -34,7 +33,7 @@ def retrieve_from_kb(
 
 
     data_out = []
-    for line in tqdm.tqdm(data_query):
+    for line in tqdm.tqdm(data):
         # select increasingly large neighbours because we filter later on
         for n in [50, 100, 500, 1000, 5000]:
             idx, dists = data_kb_index.get_nns_by_vector(line["embd"], n=n, include_distances=True)
@@ -45,7 +44,7 @@ def retrieve_from_kb(
             if prevent_hardmatch:
                 tgts = [
                     x for x in tgts
-                    if x["src"] != line["src"] and ("mt" not in x or x["mt"] != line["mt"])
+                    if x[key] != line[key]
                 ]
             tgts = tgts[:k]
             if len(tgts) == k:
@@ -70,23 +69,23 @@ import comet_poly.retrieval
 import json
 
 print(json.dumps(comet_poly.retrieval.retrieve_from_kb(
+    data=[{"src": "dog"}, {"src": "carrot"}],
     data_kb=[{"src": "dog"}, {"src": "cat"}, {"src": "salad"}],
-    data_query=[{"src": "dog"}, {"src": "carrot"}],
     k=1,
     prevent_hardmatch=False,
 ), indent=2))
 
 print(json.dumps(comet_poly.retrieval.retrieve_from_kb(
+    data=[{"src": "dog"}, {"src": "carrot"}],
     data_kb=[{"src": "dog"}, {"src": "cat"}, {"src": "salad"}],
-    data_query=[{"src": "dog"}, {"src": "carrot"}],
     k=1,
     prevent_hardmatch=True,
 ), indent=2))
 
 
 print(json.dumps(comet_poly.retrieval.retrieve_from_kb(
+    data=[{"src": "a"}],
     data_kb=[{"src": "b"}, {"src": "c"}, {"src": "a"}, {"src": "x"}],
-    data_query=[{"src": "a"}],
     k=3,
     prevent_hardmatch=False,
 ), indent=2))
