@@ -89,4 +89,21 @@ print(json.dumps(comet_poly.retrieval.retrieve_from_kb(
     k=3,
     prevent_hardmatch=False,
 ), indent=2))
+
+# or retrieval on our whole data
+import datasets
+data_kb = list(datasets.load_dataset("zouharvi/wmt-human-all", split="train"))
+data_retrieved = comet_poly.retrieval.retrieve_from_kb(
+    data=data,
+    data_kb=data_kb,
+    k=1,
+    prevent_hardmatch=False,
+)
+# add the retrieved data
+for line, lines_retrieved in zip(data, data_retrieved):
+    for i in range(len(lines_retrieved)):
+        line[f"src{i+2}"] = lines_retrieved[i]["src"]
+        line[f"mt{i+2}"] = lines_retrieved[i]["mt"]
+        line[f"score{i+2}"] = lines_retrieved[i]["score"]
+
 """

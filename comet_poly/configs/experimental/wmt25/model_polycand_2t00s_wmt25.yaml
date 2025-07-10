@@ -1,7 +1,7 @@
-polyic_metric:
-  class_path: comet_poly.models.PolyICMetric
+polycand_metric:
+  class_path: comet_poly.models.PolyCandMetric
   init_args:
-    nr_frozen_epochs: 0
+    nr_frozen_epochs: 0.3
     keep_embeddings_frozen: True
     optimizer: AdamW
     encoder_learning_rate: 1.0e-06
@@ -15,17 +15,19 @@ polyic_metric:
     layer_norm: False
     loss: mse
     dropout: 0.1
-    batch_size: 8
+    batch_size: 16
     train_data: 
-      - data/csv/train_retrieval_minilm_11_src.csv
+      - data/csv/train_same_rand_wmt25.csv
     validation_data: 
-      - data/csv/dev_retrieval_minilm_11_src.csv
+      - data/csv/dev_same_rand.csv
     hidden_sizes:
       - 2048
       - 1024
     activations: Tanh
-    additional_translation_in: [True, True, True, True, True]
+    additional_translation_in: [True, True, False, False, False]
+    additional_score_in: [False, False, False, False, False]
+    additional_score_out: [False, False, False, False, False]
     
-trainer: ../../trainer_half_cont2ep.yaml
+trainer: ../../trainer.yaml
 early_stopping: ../../early_stopping.yaml
 model_checkpoint: ../../model_checkpoint.yaml
