@@ -134,4 +134,8 @@ data_kb = [
 ]
 
 print(comet_poly.knn_polyic.knn_polyic(data=data, data_kb=data_kb, model="zouharvi/comet-poly-base-wmt25"))
+
+import datasets
+data_kb = datasets.load_dataset("zouharvi/wmt-human-all", split="train")
+print(comet_poly.knn_polyic.knn_polyic(data=data, data_kb=data_kb, model="zouharvi/comet-poly-base-wmt25"))
 """
