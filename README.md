@@ -12,7 +12,7 @@
 > We find that simply including a single additional translation in the input boosts segment-level metric performance (0.079→0.118 τ_b), with further gains when adding more translations for context.
 > Retrieved examples yield similar improvements  (0.079→0.116 τ_b), and the approach shows promise for on-the-fly domain adaptation.
 
-Paper link [TODO](TODO).
+Paper link [arxiv.org/abs/2508.18549](https://arxiv.org/abs/2508.18549).
 
 <img src="meta/highlevel_model_poly.svg" width="100%">
 
@@ -112,9 +112,13 @@ Then train models based on [experiments/03-train_models.sh](experiments/03-train
 
 If you use this work, please cite it as:
 ```bibtex
-@misc{zuefle2025comet,
-    title={{COMET-poly}: Machine Translation Metric Grounded in Other Candidates},
-    author={Maike Züfle, Vilém Zouhar, Tu Anh Dinh, Felipe Polo, Jan Niehues, Mrinmaya Sachan},
-    year={2025},
+@misc{züfle2025cometpoly,
+      title={COMET-poly: Machine Translation Metric Grounded in Other Candidates}, 
+      author={Maike Züfle and Vilém Zouhar and Tu Anh Dinh and Felipe Maia Polo and Jan Niehues and Mrinmaya Sachan},
+      year={2025},
+      eprint={2508.18549},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2508.18549}, 
 }
 ```
