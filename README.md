@@ -14,7 +14,7 @@
 
 Paper link [arxiv.org/abs/2508.18549](https://arxiv.org/abs/2508.18549).
 
-<img src="meta/poster.svg" width="100%">
+<img src="meta/poster.svg" width="1000vw">
 <!-- <img src="meta/highlevel_model_poly.svg" width="100%"> -->
 
 This repository contains a version of COMET which supports multiple translations to be scored.
