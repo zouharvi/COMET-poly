@@ -10,7 +10,7 @@
    xml:space="preserve"
    sodipodi:docname="poster.svg"
    inkscape:version="1.4 (e7c3feb100, 2024-10-09)"
-   inkscape:export-filename="../../Downloads/poster_v3.pdf"
+   inkscape:export-filename="../../Downloads/poster_v4.pdf"
    inkscape:export-xdpi="96"
    inkscape:export-ydpi="96"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
@@ -28,9 +28,9 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      showguides="false"
-     inkscape:zoom="1.0886223"
-     inkscape:cx="253.53145"
-     inkscape:cy="242.50834"
+     inkscape:zoom="0.76977221"
+     inkscape:cx="170.18021"
+     inkscape:cy="424.80099"
      inkscape:window-width="2560"
      inkscape:window-height="1371"
      inkscape:window-x="0"
@@ -1420,7 +1420,13 @@
        id="rect119" /></defs><g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
-     id="layer1"><text
+     id="layer1"><rect
+       style="fill:#ffffff;stroke-width:0.762;stroke-linecap:round;-inkscape-stroke:none;fill-opacity:1"
+       id="rect2"
+       width="210"
+       height="297"
+       x="0"
+       y="0" /><text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,-22.566369,-7.2687353)"
        id="text1"
@@ -1429,24 +1435,24 @@
        y="0"><tspan
          x="107.57623"
          y="156.05988"
-         id="tspan5"><tspan
+         id="tspan10"><tspan
            style="font-size:154.667px;text-align:center;text-anchor:middle;fill:#000000;stroke:none"
-           id="tspan3">COMETpoly</tspan><tspan
+           id="tspan2">COMETpoly</tspan><tspan
            style="text-align:center;text-anchor:middle;fill:#000000;stroke:none"
-           id="tspan4">
+           id="tspan9">
 </tspan></tspan><tspan
          x="113.51235"
          y="251.40491"
-         id="tspan8"><tspan
+         id="tspan97"><tspan
            style="font-size:86.6667px;text-align:center;text-anchor:middle;fill:#000000;stroke:none"
-           id="tspan6">MT</tspan><tspan
+           id="tspan11">MT</tspan><tspan
            style="font-size:86.6667px;font-family:'Prossima Moda PERSONAL USE';-inkscape-font-specification:'Prossima Moda PERSONAL USE';text-align:center;text-anchor:middle;fill:#000000;stroke:none"
-           id="tspan7"> Metric Grounded </tspan></tspan><tspan
+           id="tspan96"> Metric Grounded </tspan></tspan><tspan
          x="120.40922"
          y="335.40486"
-         id="tspan16"><tspan
+         id="tspan99"><tspan
            style="font-size:90.6667px;fill:#000000;stroke:none"
-           id="tspan15">in Other Candidates</tspan></tspan></text><text
+           id="tspan98">in Other Candidates</tspan></tspan></text><text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,-54.18199,276.51734)"
        id="text15"
@@ -1455,27 +1461,27 @@
        y="0"><tspan
          x="300.86846"
          y="56.108723"
-         id="tspan27"><tspan
+         id="tspan107"><tspan
            style="font-family:C059;-inkscape-font-specification:C059;text-align:center;text-anchor:middle;fill:#000000;stroke:none"
-           id="tspan17">Maike Züfle,</tspan><tspan
+           id="tspan100">Maike Züfle,</tspan><tspan
            style="font-family:C059;-inkscape-font-specification:C059;baseline-shift:super;fill:#000000;stroke:none"
-           id="tspan18">⋆</tspan><tspan
+           id="tspan101">⋆</tspan><tspan
            style="font-family:C059;-inkscape-font-specification:C059;text-align:center;text-anchor:middle;fill:#000000;stroke:none"
-           id="tspan19"> Vilém Zouhar,</tspan><tspan
+           id="tspan102"> Vilém Zouhar,</tspan><tspan
            style="font-family:C059;-inkscape-font-specification:C059;baseline-shift:super;fill:#000000;stroke:none"
-           id="tspan20">⋆</tspan><tspan
+           id="tspan103">⋆</tspan><tspan
            style="font-family:C059;-inkscape-font-specification:C059;text-align:center;text-anchor:middle;fill:#000000;stroke:none"
-           id="tspan21"> Tu Anh Dinh,</tspan><tspan
+           id="tspan104"> Tu Anh Dinh,</tspan><tspan
            style="font-family:C059;-inkscape-font-specification:C059;baseline-shift:super;fill:#000000;stroke:none"
-           id="tspan25">⋆</tspan><tspan
+           id="tspan105">⋆</tspan><tspan
            style="font-family:C059;-inkscape-font-specification:C059;text-align:center;text-anchor:middle;fill:#000000;stroke:none"
-           id="tspan26"> Felipe Maia Polo, Jan Niehues, Mrinmaya Sachan
+           id="tspan106"> Felipe Maia Polo, Jan Niehues, Mrinmaya Sachan
 </tspan></tspan><tspan
          x="377.37489"
          y="69.815718"
-         id="tspan29"><tspan
+         id="tspan109"><tspan
            style="font-family:C059;-inkscape-font-specification:C059;text-align:center;text-anchor:middle;fill:#000000;stroke:none"
-           id="tspan28">Karlsruhe Institute of Technology, ETH Zurich, University of Michigan</tspan></tspan></text><g
+           id="tspan108">Karlsruhe Institute of Technology, ETH Zurich, University of Michigan</tspan></tspan></text><g
        transform="matrix(0.0151805,0,0,-0.0151805,7.6572648,144.52319)"
        fill="#000000"
        stroke="none"
@@ -1795,34 +1801,34 @@
        y="0"><tspan
          x="171.77734"
          y="475.80059"
-         id="tspan31"><tspan
+         id="tspan111"><tspan
    style="font-weight:bold"
-   id="tspan30">Human annotators</tspan>: judge multiple translations </tspan><tspan
+   id="tspan110">Human annotators</tspan>: judge multiple translations </tspan><tspan
          x="171.77734"
          y="490.20059"
-         id="tspan33">in sequence (calibration / sequence effects)
+         id="tspan112">in sequence (calibration / sequence effects)
 </tspan><tspan
          x="171.77734"
          y="504.60058"
-         id="tspan34">
+         id="tspan114">
 </tspan><tspan
          x="171.77734"
          y="519.00058"
-         id="tspan36"><tspan
+         id="tspan116"><tspan
    style="font-weight:bold"
-   id="tspan35">Metrics</tspan>: score each translation independently </tspan><tspan
+   id="tspan115">Metrics</tspan>: score each translation independently </tspan><tspan
          x="171.77734"
          y="533.40057"
-         id="tspan37">one by one (not possible to compare and calibrate)</tspan></text><text
+         id="tspan117">one by one (not possible to compare and calibrate)</tspan></text><text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,-44.754317,-13.042723)"
        id="text25"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:0.9;font-family:C059;-inkscape-font-specification:C059;text-align:center;text-decoration-color:#000000;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#rect25);display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:2.88;stroke-linecap:round"><tspan
          x="195.88083"
          y="475.80059"
-         id="tspan39"><tspan
+         id="tspan119"><tspan
            style="font-weight:bold"
-           id="tspan38">An unfair setup for metrics against humans</tspan></tspan></text><text
+           id="tspan118">An unfair setup for metrics against humans</tspan></tspan></text><text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,74.829501,-13.254606)"
        id="text30"
@@ -1831,38 +1837,38 @@
        y="0"><tspan
          x="171.77734"
          y="476.60059"
-         id="tspan41"><tspan
+         id="tspan121"><tspan
    style="font-weight:bold"
-   id="tspan40">Idea 1</tspan>: use LLMs with context (slow and </tspan><tspan
+   id="tspan120">Idea 1</tspan>: use LLMs with context (slow and </tspan><tspan
          x="171.77734"
          y="492.60059"
-         id="tspan42">expensive).
+         id="tspan122">expensive).
 </tspan><tspan
          x="171.77734"
          y="508.60059"
-         id="tspan48">
+         id="tspan123">
 </tspan><tspan
          x="171.77734"
          y="524.60059"
-         id="tspan51"><tspan
+         id="tspan127"><tspan
    style="font-weight:bold"
-   id="tspan50">Idea 2</tspan>: give more candidates at once to </tspan><tspan
+   id="tspan126">Idea 2</tspan>: give more candidates at once to </tspan><tspan
          x="171.77734"
          y="540.60059"
-         id="tspan52">lightweight COMET models.
+         id="tspan129">lightweight COMET models.
 </tspan><tspan
          x="171.77734"
          y="556.60059"
-         id="tspan53">
+         id="tspan130">
 </tspan><tspan
          x="171.77734"
          y="572.60059"
-         id="tspan55"><tspan
+         id="tspan136"><tspan
    style="font-weight:bold"
-   id="tspan54">Requirement: </tspan>multiple translations of the </tspan><tspan
+   id="tspan133">Requirement: </tspan>multiple translations of the </tspan><tspan
          x="171.77734"
          y="588.60059"
-         id="tspan56">same source, or related translations.</tspan></text><path
+         id="tspan137">same source, or related translations.</tspan></text><path
        style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.462;stroke-linecap:round;stroke-linejoin:bevel;stroke-dasharray:none;stroke-opacity:1"
        d="m 120.61068,143.60874 c 4.47193,0.0851 8.9422,-0.0755 13.41416,-0.16009 2.78922,-0.0527 5.57906,-0.0526 8.36867,-0.0526"
        id="path38"
@@ -3733,14 +3739,14 @@
        y="0"><tspan
          x="171.77734"
          y="475.80059"
-         id="tspan57">Put in other translations of the same source. 
+         id="tspan138">Put in other translations of the same source. 
 </tspan><tspan
          x="171.77734"
          y="490.20059"
-         id="tspan58">Use for benchmarking, model development, </tspan><tspan
+         id="tspan139">Use for benchmarking, model development, </tspan><tspan
          x="171.77734"
          y="504.60058"
-         id="tspan59">WMT metrics shared task or reranking.</tspan></text><text
+         id="tspan142">WMT metrics shared task or reranking.</tspan></text><text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,65.915128,71.884711)"
        id="text52"
@@ -3749,14 +3755,14 @@
        y="0"><tspan
          x="171.77734"
          y="475.80059"
-         id="tspan60">Put in translations of related sources (even </tspan><tspan
+         id="tspan143">Put in translations of related sources (even </tspan><tspan
          x="171.77734"
          y="490.20059"
-         id="tspan61">different language) for in-context examples.
+         id="tspan146">different language) for in-context examples.
 </tspan><tspan
          x="171.77734"
          y="504.60058"
-         id="tspan62">Use domain-specific data.</tspan></text><path
+         id="tspan149">Use domain-specific data.</tspan></text><path
        d="m 84.5,266.5 h 1129"
        style="fill:none;stroke:#000000;stroke-width:2.28165;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
        transform="matrix(0.07542183,0,0,0.08436199,6.8430643,239.19097)"
@@ -4203,15 +4209,15 @@
        y="0"><tspan
          x="246.84659"
          y="476.60059"
-         id="tspan63">Global segment-level Pearson correlation
+         id="tspan152">Global segment-level Pearson correlation
 </tspan><tspan
          x="397.7666"
          y="492.60059"
-         id="tspan78">
+         id="tspan153">
 </tspan><tspan
          x="243.25459"
          y="508.60059"
-         id="tspan79">baseline      +1 extra candidate     &gt;1 extra</tspan></text><circle
+         id="tspan154">baseline      +1 extra candidate     &gt;1 extra</tspan></text><circle
        style="fill:#9c9c9c;fill-opacity:1;stroke:none;stroke-width:1.062;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
        id="circle78"
        cx="8.5368156"
@@ -4259,70 +4265,70 @@
        y="0"><tspan
          x="171.77734"
          y="475.40059"
-         id="tspan80">Additional candidates help.
+         id="tspan155">Additional candidates help.
 </tspan><tspan
          x="171.77734"
          y="489.0006"
-         id="tspan81">
+         id="tspan156">
 </tspan><tspan
          x="171.77734"
          y="502.60061"
-         id="tspan82">Lighweight COMET compares to LLMs that
+         id="tspan157">Lighweight COMET compares to LLMs that
 </tspan><tspan
          x="171.77734"
          y="516.20061"
-         id="tspan83">do not benefit from more context.
+         id="tspan158">do not benefit from more context.
 </tspan><tspan
          x="171.77734"
          y="529.80062"
-         id="tspan84">
+         id="tspan159">
 </tspan><tspan
          x="171.77734"
          y="543.40059"
-         id="tspan85">No overhead cost with caching.
+         id="tspan160">No overhead cost with caching.
 </tspan><tspan
          x="171.77734"
          y="557.00057"
-         id="tspan86">
+         id="tspan161">
 </tspan><tspan
          x="171.77734"
          y="570.60055"
-         id="tspan87">Adding two or three candidates best.
+         id="tspan162">Adding two or three candidates best.
 </tspan><tspan
          x="171.77734"
          y="584.20052"
-         id="tspan88">
+         id="tspan163">
 </tspan><tspan
          x="171.77734"
          y="597.8005"
-         id="tspan89">Useful for lower-quality translations </tspan><tspan
+         id="tspan164">Useful for lower-quality translations </tspan><tspan
          x="171.77734"
          y="611.40047"
-         id="tspan90">(undertranslations, hallucinations).
+         id="tspan165">(undertranslations, hallucinations).
 </tspan><tspan
          x="171.77734"
          y="625.00045"
-         id="tspan91">
+         id="tspan166">
 </tspan><tspan
          x="171.77734"
          y="638.60042"
-         id="tspan92">Quality of other candidates not important.
+         id="tspan167">Quality of other candidates not important.
 </tspan><tspan
          x="171.77734"
          y="652.2004"
-         id="tspan93">
+         id="tspan168">
 </tspan><tspan
          x="171.77734"
          y="665.80037"
-         id="tspan94">Works with reference-based COMET.
+         id="tspan169">Works with reference-based COMET.
 </tspan><tspan
          x="171.77734"
          y="679.40035"
-         id="tspan95">
+         id="tspan170">
 </tspan><tspan
          x="171.77734"
          y="693.00033"
-         id="tspan113">Find models on HuggingFace.
+         id="tspan171">Find models on HuggingFace.
 </tspan></text><path
        style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.835;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
        d="m 126.26146,23.757569 c 1.49877,0 2.99754,0 4.49631,0"
